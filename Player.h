@@ -55,10 +55,16 @@ public:
 	int getHealth();
 	int getDamage();
 	int getLevel();
+	void attack(const SDL_Rect& a, const SDL_Rect& B, int x, int y);
+
+	void LevelUp();
+
 	//void setWeapon(Weapon* weapon);
 	//Weapon* getWeapon();
 private:
 
+	bool attacking;
+	bool attackable = true;
 	bool talked;
 	bool teleporting;
 	bool talkable;
@@ -85,6 +91,7 @@ private:
 	int level;
 	int damage;
 	int dexterity;
+	int swordRange;
 	//Weapon* pWeapon = new Weapon("bear hands", 1, 0);
 	//Weapon equippedWeapon;
 };

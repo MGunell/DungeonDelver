@@ -3,9 +3,9 @@
 
 ProjectileManager::ProjectileManager()
 {
-	used = 0;
+	used = -1;
 	index = 0;
-	projectiles = new Projectile[100];
+	projectiles = new Projectile[50];
 }
 
 void ProjectileManager::start() {
@@ -19,14 +19,18 @@ void ProjectileManager::advance()
 	index++;
 }
 
-void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, BaseNpc& enemy)
+void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, BaseNpc* enemy[])
 {
 	if (used > -1) {
-		for (int i = 0; i < capacity; i++)
+		for (int i = 0; i < used; i++)
 		{
-			if (projectiles[i].move(enemy) == true)
+			for (int j = 0; j < 3; j++)
 			{
-				projectiles[i].renderProjectile(camera, gRenderer);
+				if (projectiles[i].move(enemy[j]) == true)
+				{
+					projectiles[i].renderProjectile(camera, gRenderer);
+
+				}
 			}
 			
 		}
@@ -34,12 +38,14 @@ void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, Bas
 			
 }
 
-void ProjectileManager::insert(int x, int y, double velX, double velY)
+void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage)
 {
-	projectiles[index] = Projectile(x, y, velX, velY);
+	projectiles[index] = Projectile(angle - 90, x, y, velX, velY, 25 + damage);
+	//projectiles[index].setAngle(angle - 90);
+	if (used <= 0) used = 1;
+	else used++;
 	index++;
-	used++;
-	if (index >= capacity)
+	if (index >= 10)//capacity - 1)
 	{
 		index = 0;
 	}

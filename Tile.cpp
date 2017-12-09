@@ -1,7 +1,8 @@
 #include "Tile.h"
 
 LTexture gTileTexture;
-SDL_Rect gLevelOneClips[4];
+SDL_Rect gLevelOneClips[10];
+
 
 Tile::Tile(int x, int y, int tileType)
 {
@@ -18,16 +19,20 @@ Tile::Tile(int x, int y, int tileType)
 
 void Tile::render(SDL_Rect& camera, SDL_Renderer* gRenderer)
 {
-	if (checkCollision(camera, mBox))
-	{
+	//if (checkCollision(camera, mBox))
+	//{
 		//show tile
 		gTileTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gLevelOneClips[mType], gRenderer);
-	}
+	//}
 }
 
 int Tile::getType()
 {
 	return mType;
+}
+
+void Tile::setType(int& type) {
+	mType = type;
 }
 
 SDL_Rect Tile::getBox()
@@ -39,8 +44,8 @@ bool setTiles(Tile* tiles[])
 {
 	bool tilesLoaded = true;
 
-	int x = 50;
-	int y = 100;
+	int x = 0;
+	int y = 0;
 
 	//open map
 	std::ifstream map("maps/levelone.map");
@@ -75,9 +80,9 @@ bool setTiles(Tile* tiles[])
 
 			//move to next spot
 			x += TILE_WIDTH;
-			if (x >= (16 * TILE_WIDTH)+50)
+			if (x >= (16 * TILE_WIDTH))
 			{
-				x = 50;
+				x = 0;
 				y += TILE_HEIGHT;
 			}
 		}
@@ -102,6 +107,36 @@ bool setTiles(Tile* tiles[])
 			gLevelOneClips[3].y = 256;
 			gLevelOneClips[3].w = 32;
 			gLevelOneClips[3].h = 32;
+
+			gLevelOneClips[4].x = 480;
+			gLevelOneClips[4].y = 896;
+			gLevelOneClips[4].w = 32;
+			gLevelOneClips[4].h = 32;
+
+			gLevelOneClips[5].x = 512;
+			gLevelOneClips[5].y = 896;
+			gLevelOneClips[5].w = 32;
+			gLevelOneClips[5].h = 32;
+
+			gLevelOneClips[6].x = 544;
+			gLevelOneClips[6].y = 896;
+			gLevelOneClips[6].w = 32;
+			gLevelOneClips[6].h = 32;
+
+			gLevelOneClips[7].x = 704;
+			gLevelOneClips[7].y = 288;
+			gLevelOneClips[7].w = 32;
+			gLevelOneClips[7].h = 32;
+
+			//gLevelOneClips[8].x = 640;
+			//gLevelOneClips[8].y = 256;
+			//gLevelOneClips[8].w = 32;
+			//gLevelOneClips[8].h = 32;
+
+			//gLevelOneClips[9].x = 640;
+			//gLevelOneClips[9].y = 256;
+			//gLevelOneClips[9].w = 32;
+			//gLevelOneClips[9].h = 32;
 		}
 	}
 

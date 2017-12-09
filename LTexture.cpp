@@ -116,9 +116,9 @@ bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer)
 	return mTexture != NULL;
 }
 
-bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, SDL_Renderer* gRenderer, TTF_Font* gFont)
+bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor, SDL_Renderer *gRenderer, TTF_Font *gFont)
 {
-//	free();
+	free();
 
 	//render text surface
 	SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText.c_str(), textColor);
@@ -133,6 +133,7 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 		if (mTexture == NULL)
 		{
 			//nothing yet pritn error message would be nice
+			printf("error getting thexture from surface Error: %s", TTF_GetError());
 		}
 		else
 		{
@@ -144,5 +145,8 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 		//get rid of old surface
 		SDL_FreeSurface(textSurface);
 	}
+	
+	
 	return mTexture != NULL;
+
 }

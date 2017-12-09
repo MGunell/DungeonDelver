@@ -1,30 +1,34 @@
 #include "Player.h"
+#include <math.h>
+
+#define PI 3.14
+
 
 LTexture gSpriteSheetTexture;
 SDL_Rect gSpriteClips[18];
 
 ProjectileManager pManager;
-
+	
 void loadPlayerMedia(SDL_Renderer* gRenderer)
 {
 	bool success = true;
 
-	if (!gSpriteSheetTexture.loadFromFile("images/rat.png", gRenderer))
+	if (!gSpriteSheetTexture.loadFromFile("images/characters.png", gRenderer))
 	{
 		printf("Failed to load sprite sheet texture!\n");
 		success = false;
 	}
 	else
 	{
-		gSpriteClips[0].x = 4;
-		gSpriteClips[0].y = 8;
-		gSpriteClips[0].w = 64;
-		gSpriteClips[0].h = 64;
+		gSpriteClips[0].x = 21;
+		gSpriteClips[0].y = 182;
+		gSpriteClips[0].w = 12;
+		gSpriteClips[0].h = 17;
 
-		gSpriteClips[1].x = 67;
-		gSpriteClips[1].y = 7;
-		gSpriteClips[1].w = 64;
-		gSpriteClips[1].h = 64;
+		gSpriteClips[1].x = 39;
+		gSpriteClips[1].y = 183;
+		gSpriteClips[1].w = 12;
+		gSpriteClips[1].h = 17;
 
 
 		//test npc sprites
@@ -239,13 +243,24 @@ Player::Player()
 	health = 100;
 	level = 1;
 	damage = 0;
-	dexterity = 60;
+	dexterity = 20;
+	swordRange = 75;
 
 	//drawing a chatbox
 	chatBubble.w = P_WIDTH;
 	chatBubble.h = P_HEIGHT;
 	chatBubble.x = mCollider.x;
 	chatBubble.y = mCollider.y - P_HEIGHT;
+}
+
+void Player::LevelUp()
+{
+	level++;
+	health += 20;
+	damage += 40;
+	if (dexterity < 200)
+	dexterity += 1;
+
 }
 
 void Player::handleEvent(SDL_Event& e)
@@ -316,7 +331,7 @@ void Player::move(Tile* tiles[], ProjectileManager& p, SDL_Rect& camera)
 
 	//if it collided
 	//if ((mPosX < 0) || (mPosX + P_WIDTH > SCREEN_WIDTH) || checkCollision(mCollider, wall))
-	if ((mCollider.x <50)|| (mCollider.x + P_WIDTH>50 +64*16) || touchesWall(mCollider, tiles))
+	if ((mCollider.x <0)|| (mCollider.x + P_WIDTH>64*16) || touchesWall(mCollider, tiles))
 	{
 		//then move back
 		//mPosX -= mVelX;
@@ -327,7 +342,7 @@ void Player::move(Tile* tiles[], ProjectileManager& p, SDL_Rect& camera)
 	mCollider.y += mVelY;
 	//if collided
 	//if ((mPosY < 0) || (mPosY + P_HEIGHT > SCREEN_HEIGHT) || checkCollision(mCollider, wall))
-	if ((mCollider.y <100)|| (mCollider.y + P_HEIGHT> 100+ 64 * 12) || touchesWall(mCollider, tiles))
+	if ((mCollider.y <00)|| (mCollider.y + P_HEIGHT>64 * 12) || touchesWall(mCollider, tiles))
 	{
 		//mPosY -= mVelY;
 		mCollider.y -= mVelY;
@@ -356,6 +371,21 @@ void Player::move(Tile* tiles[], ProjectileManager& p, SDL_Rect& camera)
 		int x, y;
 		SDL_GetMouseState(&x, &y);
 		teleport(x + camera.x, y + camera.y);
+	}
+	if (attacking)
+	{
+		int x, y;
+		SDL_GetMouseState(&x, &y);
+		//attack(x + camera.x, y + camera.y);
+	}
+
+}
+
+void Player::attack(const SDL_Rect& A, const SDL_Rect& B, int x, int y)
+{
+	if (attackable)
+	{
+		double angle = getangle(x, y);
 	}
 
 }
@@ -404,10 +434,10 @@ void Player::teleport(int x, int y)
 
 void Player::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, SDL_Rect* clip2) //SDL_Rect& camera)
 {
-	gSpriteSheetTexture.renderHalf(mCollider.x - camera.x, mCollider.y - camera.y, clip, gRenderer, angle, center, flip);
+	gSpriteSheetTexture.render(mCollider.x - camera.x, mCollider.y - camera.y, clip, gRenderer, angle, center, flip);
 	if (talkable == true)
 	{
-		gSpriteSheetTexture.renderHalf(mCollider.x - camera.x, (mCollider.y - 8 * scale) - camera.y, clip2,gRenderer, angle, center, flip);
+		gSpriteSheetTexture.render(mCollider.x - camera.x, (mCollider.y - 8 * scale) - camera.y, clip2,gRenderer, angle, center, flip);
 	}
 }
 
@@ -415,41 +445,18 @@ void Player::shoot(ProjectileManager& pManager, int x, int y)
 {
 	if (shootable)
 	{
-	double plX = mCollider.x;
-	double plY = mCollider.y;
 	int xscale = 5, yscale = 5;
 
 	int mX = x, mY = y;
 
-	float angle = atanf(abs((plY - mY)) / abs((plX - mX)));
-
-	if (plX >= mX && plY >=mY)
-		{
-			//this quadrant is bottom right, the object is top left
-			xscale = -7;
-			yscale = -7;
-		}
-		if (plX < mX && plY >= mY)
-		{//object aboe and right
-			xscale = 7;
-			yscale = -7;
-		}
-		if (plX >= mX && plY < mY) //object is left and below 
-		{
-			xscale = -7;
-			yscale = 7;
-		}
-		if (plX < mX && plY < mY)
-		{
-			yscale = 7;
-			xscale = 7;
-		}
+	double angle = getangle(x, y);
 
 	double PVelY = yscale * sin(angle);
 	double PVelX = xscale * cos(angle);
+	angle = (angle * (180 / PI))+180;
 	
-		pManager.insert(mCollider.x, mCollider.y, PVelX, PVelY);
-		shootingframes = 600;
+		pManager.insert(angle, mCollider.x + mCollider.w/2, mCollider.y + mCollider.h/2, PVelX/3, PVelY/3, damage);
+		shootingframes = 120;
 	}
 }
 
@@ -458,23 +465,22 @@ double Player::getangle(int x, int y)
 	double plX = mCollider.x;
 	double plY = mCollider.y;
 
-	int mX = x, mY = y;
-	double angle = atan((plY - mY) / (plX - mX));
-
+	double angle = atan2(y- (plY + mCollider.h) , x - (plX + mCollider.w));
+	
 	return angle;
 }
 
 void Player::setCamera(SDL_Rect& camera)
 {
-	camera.x = (mCollider.x + P_WIDTH) - SCREEN_WIDTH/2 ;
-	camera.y = (mCollider.y + P_HEIGHT) - SCREEN_HEIGHT/2;
+	camera.x = (mCollider.x + (P_WIDTH/2)) - SCREEN_WIDTH/2 ;
+	camera.y = (mCollider.y + (P_HEIGHT/2)) - SCREEN_HEIGHT/2;
 
 	//keep camera in bounds
-	if (camera.x < 0)
+	if (camera.x < -camera.w)
 	{
 		camera.x = 0;
 	}
-	if (camera.y < 0)
+	if (camera.y < -camera.h)
 	{
 		camera.y = 0;
 	}
@@ -500,7 +506,7 @@ void Player::incrementFrames()
 		shootingframes -= dexterity;
 		shootable = false;
 	}
-	else if (shootingframes == 0)
+	else 
 	{
 		shootable = true;
 		shootingframes = 0;
@@ -517,7 +523,7 @@ void Player::incrementFrames()
 		teleportingframes = 0;
 	}
 	frames++;
-	if (frames / 8 <= 3)frames = 1;
+	//if (frames / 8 <= 3)frames = 1;
 	if (frames / 8 >= 2) frames = 0;
 }
 
@@ -525,12 +531,12 @@ SDL_Rect* Player::getClip()
 {
 	if (moving)
 	{
-		return &gSpriteClips[(frames/2 % 2) ];
-		//return &gSpriteClips[(frames / 8) + facing];
+		//return &gSpriteClips[(frames/2 % 2) ];
+		return &gSpriteClips[(frames / 8) + facing];
 	}
 	else
 	{
-		return &gSpriteClips[1];
+		return &gSpriteClips[facing];
 	}
 }
 

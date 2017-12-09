@@ -46,7 +46,8 @@ void BaseNpc::setMoveDirections(Player& player)
 	//so actual angle = 
 	//slime = (50,50)
 	//player = (0,0)
-	int xscale = 2, yscale = 2;
+	int xscale, yscale;
+	double scale = 2.5;
 	double plX = player.getPosX();
 	double plY = player.getPosY();
 	if (((mCollider.x - plX) != 0 || (mCollider.y - plY) != 0) && !touchesPlayer(mCollider, player))
@@ -57,23 +58,23 @@ void BaseNpc::setMoveDirections(Player& player)
 		if (mCollider.x >= plX && mCollider.y >= plY)
 		{
 			//this quadrant is bottom right, the object is top left
-			xscale = -2;
-			yscale = -2;
+			xscale = -scale;
+			yscale = -scale;
 		}
 		if (mCollider.x < plX && mCollider.y >= plY)
 		{//object aboe and right
-			xscale = 2;
-			yscale = -2;
+			xscale = scale;
+			yscale = -scale;
 		}
 		if (mCollider.x >= plX && mCollider.y < plY) //object is left and below 
 		{
-			xscale = -2;
-			yscale = 2;
+			xscale = -scale;
+			yscale = scale;
 		}
 		if (mCollider.x < plX && mCollider.y < plY)
 		{
-			yscale = 2;
-			xscale = 2;
+			yscale = scale;
+			xscale = scale;
 		}
 
 		nVelY = (yscale *  (sin(angle)));
@@ -92,11 +93,7 @@ void BaseNpc::dealDamage(int pdamage)
 {
 	if (!damaged) damaged = true;
 	health -= pdamage;
-	if (health > 0)
-	{
-		
-	}
-	else
+	if (health < 0)
 	{
 		dead = true;
 	}
@@ -107,13 +104,13 @@ void BaseNpc::targetedMove(Player& player, Tile* tiles[])
 	setMoveDirections(player);
 	
 	mCollider.x += nVelX;
-	if ((mCollider.x < 50) || (mCollider.x + 60 >  LEVEL_WIDTH-50) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
+	if ((mCollider.x < 0) || (mCollider.x + 60 >  LEVEL_WIDTH) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
 	{
 		mCollider.x -= nVelX;
 	}
 
 	mCollider.y += nVelY;
-	if ((mCollider.y < 100) || (mCollider.y + 60 > LEVEL_HEIGHT - 100) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
+	if ((mCollider.y < 00) || (mCollider.y + 60 > LEVEL_HEIGHT) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
 	{
 		mCollider.y -= nVelY;
 	}
@@ -197,7 +194,7 @@ void BaseNpc::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, 
 bool loadSlimeMedia(SDL_Renderer* gRenderer)
 {
 	bool success = true;
-	if (!gSpriteSheetTexture2.loadFromFile("images/Pizza.png", gRenderer))
+	if (!gSpriteSheetTexture2.loadFromFile("images/characters.png", gRenderer))
 	{
 		printf("couldnt load slime stuff");
 		success = false;
@@ -205,25 +202,15 @@ bool loadSlimeMedia(SDL_Renderer* gRenderer)
 	else
 	{
 
-		currentSprite[0].x = 0;
-		currentSprite[0].y = 0;
-		currentSprite[0].h = 32;
+		currentSprite[0].x = 126;
+		currentSprite[0].y = 165;
+		currentSprite[0].h = 27;
 		currentSprite[0].w = 32;
 
-		currentSprite[1].x = 0;
-		currentSprite[1].y = 0;
-		currentSprite[1].h = 32;
+		currentSprite[1].x = 159;
+		currentSprite[1].y = 165;
+		currentSprite[1].h = 27;
 		currentSprite[1].w = 32;
-
-		//currentSprite[0].x = 126;
-		//currentSprite[0].y = 165;
-		//currentSprite[0].h = 27;
-		//currentSprite[0].w = 32;
-
-		//currentSprite[1].x = 159;
-		//currentSprite[1].y = 165;
-		//currentSprite[1].h = 27;
-		//currentSprite[1].w = 32;
 	}
 
 	return success;

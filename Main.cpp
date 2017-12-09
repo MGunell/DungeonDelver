@@ -13,6 +13,7 @@ int main(int argc, char* args[])
 		startgame();
 	case New_game:
 		levelOne();
+		//startMapEditor();
 		//while (notPaused == true) {};
 		//New_game();//run the new game stuff that you need to get user input and calibrate everything
 		break;

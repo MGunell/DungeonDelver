@@ -1,25 +1,25 @@
 #include "Projectile.h"
 
 LTexture projectileSheets;
-SDL_Rect sprites1[30];
+SDL_Rect sprites1[1];
 
-Projectile::Projectile(int x, int y, double VelX, double VelY, int damage1, int range1, int speed1, int mtype)
+Projectile::Projectile(double angle1, int x, int y, double VelX, double VelY, int damage1, int range1, int speed1, int mtype)
 {
 	pposx = x;
 	pposy = y;
 	pposw = 5;
 	pposh = 6;
+	angle = angle1;
 
 	pVelX = VelX;
 	pVelY = VelY;
 
 	damage = damage1;
-	range = 5;
-	speed = 7;
+	range = 10;
+	speed = 3;
 	mType = 0;
 	alive = true;
 	lifetime = range * 64;
-
 }
 
 bool loadProjectileMedia(SDL_Renderer* gRenderer)
@@ -46,16 +46,17 @@ void Projectile::renderProjectile(SDL_Rect& camera, SDL_Renderer* gRenderer)
 {
 	
 		//show tile
-		projectileSheets.render(pposx - camera.x, pposy - camera.y, &sprites1[0], gRenderer);
+		
+		projectileSheets.render(pposx - camera.x, pposy - camera.y, &sprites1[0], gRenderer, angle);
 	
 }
 
-bool Projectile::move(BaseNpc& enemy)
+bool Projectile::move(BaseNpc* enemy)
 {
 	lifetime -= speed;
 	if (lifetime > 0)
 	{
-		if (!checkHit(enemy.mCollider) || enemy.getAlive())
+		if (!checkHit(enemy->mCollider) || enemy->getAlive())
 		{
 			pposx += pVelX;
 			pposy += pVelY;
@@ -64,8 +65,8 @@ bool Projectile::move(BaseNpc& enemy)
 		}
 		else
 		{
-			enemy.dealDamage(damage);
-			lifetime = 0;
+			enemy->dealDamage(damage);
+			lifetime = 0;	
 		}
 	}
 	alive = false;

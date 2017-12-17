@@ -1,6 +1,12 @@
-#pragma once
-#include "stdafx.h"
-#include <SDL_ttf.h>
+#ifndef __LTexture__
+#define __LTexture__
+
+#include <iostream>
+#include <stdint.h>
+#include "SDL.h"
+#include "SDL_ttf.h"
+#include "SDL_Image.h"
+
 
 class LTexture
 {
@@ -16,8 +22,9 @@ public:
 
 	void render(int x, int y, SDL_Rect* clip = NULL, SDL_Renderer* gRenderer = NULL, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
-	void renderHalf(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip);
+	void renderHalf(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
+	void LTexture::renderInventory(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle = 0.0, SDL_Point* center = NULL, SDL_RendererFlip flip = SDL_FLIP_NONE);
 
 	void setColor(Uint8 red, Uint8 green, Uint8 blue);
 
@@ -32,3 +39,4 @@ private:
 
 };
 
+#endif

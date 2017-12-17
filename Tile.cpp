@@ -1,8 +1,5 @@
 #include "Tile.h"
 
-LTexture gTileTexture;
-SDL_Rect gLevelOneClips[10];
-
 
 Tile::Tile(int x, int y, int tileType)
 {
@@ -22,7 +19,7 @@ void Tile::render(SDL_Rect& camera, SDL_Renderer* gRenderer)
 	//if (checkCollision(camera, mBox))
 	//{
 		//show tile
-		gTileTexture.render(mBox.x - camera.x, mBox.y - camera.y, &gLevelOneClips[mType], gRenderer);
+		gTileTexture.renderHalf(mBox.x - camera.x, mBox.y - camera.y, &gLevelOneClips[mType], gRenderer);
 	//}
 }
 
@@ -79,11 +76,11 @@ bool setTiles(Tile* tiles[])
 			}
 
 			//move to next spot
-			x += TILE_WIDTH;
-			if (x >= (16 * TILE_WIDTH))
+			x += static_cast<int>(TILE_WIDTH * 1.5);
+			if (x >= (16 * TILE_WIDTH * 1.5))
 			{
 				x = 0;
-				y += TILE_HEIGHT;
+				y += static_cast<int>(TILE_HEIGHT * 1.5);
 			}
 		}
 		if (tilesLoaded)

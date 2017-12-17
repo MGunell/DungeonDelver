@@ -1,7 +1,5 @@
 #include "BaseNpc.h"
-
-SDL_Rect currentSprite[2];
-LTexture gSpriteSheetTexture2;
+#include <math.h>
 
 BaseNpc::BaseNpc(int x, int y)
 {
@@ -25,9 +23,11 @@ BaseNpc::BaseNpc(int x, int y)
 
 	dead = false;
 
-	
+	healthbox.x = mCollider.x;
+	healthbox.y = mCollider.y;
 	healthbox.h = 5;
 	healthbox.w = 60;
+	healthbox1 = &healthbox;
 }
 
 double BaseNpc::getxDirection(Player& player) 
@@ -46,39 +46,16 @@ void BaseNpc::setMoveDirections(Player& player)
 	//so actual angle = 
 	//slime = (50,50)
 	//player = (0,0)
-	int xscale, yscale;
 	double scale = 2.5;
 	double plX = player.getPosX();
 	double plY = player.getPosY();
 	if (((mCollider.x - plX) != 0 || (mCollider.y - plY) != 0) && !touchesPlayer(mCollider, player))
 	{ 
-		double angle = atan( ( abs(((mCollider.y-plY))  / abs((mCollider.x-plX)))) );
+		double angle = atan2( (plY - mCollider.y), (plX - mCollider.x) );
 		//printf("%d", angle);
 
-		if (mCollider.x >= plX && mCollider.y >= plY)
-		{
-			//this quadrant is bottom right, the object is top left
-			xscale = -scale;
-			yscale = -scale;
-		}
-		if (mCollider.x < plX && mCollider.y >= plY)
-		{//object aboe and right
-			xscale = scale;
-			yscale = -scale;
-		}
-		if (mCollider.x >= plX && mCollider.y < plY) //object is left and below 
-		{
-			xscale = -scale;
-			yscale = scale;
-		}
-		if (mCollider.x < plX && mCollider.y < plY)
-		{
-			yscale = scale;
-			xscale = scale;
-		}
-
-		nVelY = (yscale *  (sin(angle)));
-		nVelX = (xscale * (cos(angle)));
+		nVelY = scale *  (sin(angle));
+		nVelX = scale * (cos(angle));
 		
 	}
 	else
@@ -99,7 +76,7 @@ void BaseNpc::dealDamage(int pdamage)
 	}
 }
 
-void BaseNpc::targetedMove(Player& player, Tile* tiles[])
+void BaseNpc::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p)
 {
 	setMoveDirections(player);
 	
@@ -183,7 +160,7 @@ void BaseNpc::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, 
 				healthbox.w = (health / maxHealth) * 60;
 
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
-				SDL_RenderFillRect(gRenderer, &healthbox);
+				SDL_RenderFillRect(gRenderer, healthbox1);
 
 			}
 			SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);

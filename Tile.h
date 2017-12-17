@@ -1,6 +1,9 @@
-#pragma once
-#include "stdafx.h"
-#include <SDL_ttf.h>
+#ifndef __Tile__
+#define __Tile__
+
+#include "SDL.h"
+#include "LTexture.h"
+#include <fstream>
 
 class Tile
 {
@@ -32,7 +35,10 @@ bool loadLevelOneMedia(Tile* tileSet[], SDL_Renderer* gRenderer);
 const int TOTAL_TILES = 16 * 12;
 const int TOTAL_TILE_SPRITES = 1;
 
-const int TILE_HEIGHT = 32 * 2;
-const int TILE_WIDTH = 32 * 2;
+const int TILE_HEIGHT = 64;
+const int TILE_WIDTH = 64;
 
+static LTexture gTileTexture;
+static SDL_Rect gLevelOneClips[10];
 
+#endif

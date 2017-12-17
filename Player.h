@@ -1,18 +1,20 @@
-#pragma once
-#include "stdafx.h"
-#include "ProjectileManager.h"
-#include "FireStaff1.h"
+#ifndef __Player__
+#define __Player__
 
 class Tile;
 class Weapon;
-class ProjectileManager;
+class ProjectileManager; 
+class Inventory;
+#include "ProjectileManager.h"
+#include "SDL.h"
+#include "LTexture.h"
 
 
 const int scale = 2;
-const int LEVEL_WIDTH = 100 + 16*32*scale;
-const int LEVEL_HEIGHT = 200 + 12*32*scale;
-const int SCREEN_WIDTH = 900;
-const int SCREEN_HEIGHT = 740;
+const int LEVEL_WIDTH = 16 * 64 * 1.5;
+const int LEVEL_HEIGHT = 12 * 64 * 1.5;
+const int SCREEN_WIDTH = 1200;
+const int SCREEN_HEIGHT = 900;
 
 class Player
 {
@@ -53,14 +55,20 @@ public:
 	int getPosX();
 	int getPosY();
 	int getHealth();
+	void heal(int amount) { 
+	if (health + amount < 100) health += amount;
+	else health = 100;
+	}
 	int getDamage();
 	int getLevel();
 	void attack(const SDL_Rect& a, const SDL_Rect& B, int x, int y);
+	void dealDamage(int damage);
 
 	void LevelUp();
 
 	//void setWeapon(Weapon* weapon);
 	//Weapon* getWeapon();
+	SDL_Rect mCollider;
 private:
 
 	bool attacking;
@@ -79,15 +87,19 @@ private:
 	int mPosX, mPosY;
 
 	//the collision box
-	SDL_Rect mCollider;
 
 	//the chat box
 	SDL_Rect chatBubble;
+	SDL_Rect healthBox;
+	SDL_Rect* maxHealthBox1;
+	SDL_Rect maxHealthBox;
+	//Inventory pInventory;
 
 	//velocity
 	int mVelX, mVelY;
 
 	int health;
+	int maxHealth;
 	int level;
 	int damage;
 	int dexterity;
@@ -98,3 +110,8 @@ private:
 
 void loadPlayerMedia(SDL_Renderer* gRenderer);
 bool touchesWall(SDL_Rect box, Tile* tiles[]);
+
+static LTexture gSpriteSheetTexture;
+static SDL_Rect gSpriteClips[18];
+
+#endif

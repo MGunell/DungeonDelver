@@ -1,16 +1,16 @@
 #include "ProjectileManager.h"
 #include <cassert>
+int Slimes = 1;
 
 ProjectileManager::ProjectileManager()
 {
-	used = -1;
+	used = 0;
 	index = 0;
-	projectiles = new Projectile[50];
+	projectiles = new Projectile[21];
 }
 
 void ProjectileManager::start() {
-	if (used == 0) index = 1;
-	else index = 0;
+	 index = 0;
 }
 
 void ProjectileManager::advance()
@@ -21,34 +21,67 @@ void ProjectileManager::advance()
 
 void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, BaseNpc* enemy[])
 {
-	if (used > -1) {
 		for (int i = 0; i < used; i++)
-		{
-			for (int j = 0; j < 3; j++)
+		{		
+			for (int j = 0; j < Slimes; j++)
 			{
 				if (projectiles[i].move(enemy[j]) == true)
 				{
 					projectiles[i].renderProjectile(camera, gRenderer);
+				}
 
+				else
+				{
+					if (i != used - 1)
+					{
+						projectiles[i] = projectiles[used - 1];
+						used--;
+						index--;
+						//move the last projectile in the list into the first unused one
+					}
 				}
 			}
+		}
 			
+}
+
+void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer, Player& player)
+{
+	for (int i = 0; i < used; i++)
+	{
+		for (int j = 0; j < 1; j++)
+		{
+			if (projectiles[i].enemyMove(player))
+			{
+				projectiles[i].renderProjectile(camera, gRenderer, 1);
+			}
+
+			else
+			{
+				if (i != used - 1)
+				{
+					projectiles[i] = projectiles[used - 1];
+					used--;
+					index--;
+					//move the last projectile in the list into the first unused one
+				}
+			}
 		}
 	}
-			
+
 }
 
 void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage)
 {
-	projectiles[index] = Projectile(angle - 90, x, y, velX, velY, 25 + damage);
+	projectiles[index] = Projectile(true, angle-180, x - projectiles[index].pposw, y - projectiles[index].pposh, velX, velY, 25 + damage);
 	//projectiles[index].setAngle(angle - 90);
-	if (used <= 0) used = 1;
-	else used++;
+	used++;
 	index++;
-	if (index >= 10)//capacity - 1)
+	if (index > capacity)
 	{
 		index = 0;
 	}
+	//std::cout << "insterted a projectile" << "used " << used << " index " << index-1 << std::endl;
 }
 
 

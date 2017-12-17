@@ -2,12 +2,6 @@
 #include <math.h>
 
 #define PI 3.14
-
-
-LTexture gSpriteSheetTexture;
-SDL_Rect gSpriteClips[18];
-
-ProjectileManager pManager;
 	
 void loadPlayerMedia(SDL_Renderer* gRenderer)
 {
@@ -240,9 +234,10 @@ Player::Player()
 
 	mVelX = 0;
 	mVelY = 0;
-	health = 100;
+	health = 33; 
+	maxHealth = 100;
 	level = 1;
-	damage = 0;
+	damage = 100;
 	dexterity = 20;
 	swordRange = 75;
 
@@ -251,6 +246,10 @@ Player::Player()
 	chatBubble.h = P_HEIGHT;
 	chatBubble.x = mCollider.x;
 	chatBubble.y = mCollider.y - P_HEIGHT;
+
+	maxHealthBox = { 875 - 1, (SCREEN_HEIGHT / 3) - 1, 302, 52 };
+	healthBox = { 875, SCREEN_HEIGHT / 3, ((health / maxHealth) * 300), 50 };
+	maxHealthBox1 = &healthBox;
 }
 
 void Player::LevelUp()
@@ -331,7 +330,7 @@ void Player::move(Tile* tiles[], ProjectileManager& p, SDL_Rect& camera)
 
 	//if it collided
 	//if ((mPosX < 0) || (mPosX + P_WIDTH > SCREEN_WIDTH) || checkCollision(mCollider, wall))
-	if ((mCollider.x <0)|| (mCollider.x + P_WIDTH>64*16) || touchesWall(mCollider, tiles))
+	if ((mCollider.x <0)|| (mCollider.x + P_WIDTH > LEVEL_WIDTH) || touchesWall(mCollider, tiles))
 	{
 		//then move back
 		//mPosX -= mVelX;
@@ -342,7 +341,7 @@ void Player::move(Tile* tiles[], ProjectileManager& p, SDL_Rect& camera)
 	mCollider.y += mVelY;
 	//if collided
 	//if ((mPosY < 0) || (mPosY + P_HEIGHT > SCREEN_HEIGHT) || checkCollision(mCollider, wall))
-	if ((mCollider.y <00)|| (mCollider.y + P_HEIGHT>64 * 12) || touchesWall(mCollider, tiles))
+	if ((mCollider.y <00)|| (mCollider.y + P_HEIGHT*3/2 > LEVEL_HEIGHT) || touchesWall(mCollider, tiles))
 	{
 		//mPosY -= mVelY;
 		mCollider.y -= mVelY;
@@ -434,29 +433,37 @@ void Player::teleport(int x, int y)
 
 void Player::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, SDL_Rect* clip2) //SDL_Rect& camera)
 {
-	gSpriteSheetTexture.render(mCollider.x - camera.x, mCollider.y - camera.y, clip, gRenderer, angle, center, flip);
+	gSpriteSheetTexture.renderHalf(mCollider.x - camera.x, mCollider.y - camera.y, clip, gRenderer, angle, center, flip);
 	if (talkable == true)
 	{
-		gSpriteSheetTexture.render(mCollider.x - camera.x, (mCollider.y - 8 * scale) - camera.y, clip2,gRenderer, angle, center, flip);
+		gSpriteSheetTexture.renderHalf(mCollider.x - camera.x, (mCollider.y - 8 * scale) - camera.y, clip2,gRenderer, angle, center, flip);
 	}
+
+	
+	healthBox.w = (health * 3); 
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
+	SDL_RenderFillRect(gRenderer, maxHealthBox1);
+	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+	SDL_RenderDrawRect(gRenderer, &maxHealthBox);
+	SDL_SetRenderDrawColor(gRenderer, 0x00, 0x00, 0x00, 0xFF);
 }
 
 void Player::shoot(ProjectileManager& pManager, int x, int y)
 {
 	if (shootable)
 	{
-	int xscale = 5, yscale = 5;
+	int scale = 5;
 
 	int mX = x, mY = y;
 
 	double angle = getangle(x, y);
 
-	double PVelY = yscale * sin(angle);
-	double PVelX = xscale * cos(angle);
+	double PVelY = scale * sin(angle);
+	double PVelX = scale * cos(angle);
 	angle = (angle * (180 / PI))+180;
 	
-		pManager.insert(angle, mCollider.x + mCollider.w/2, mCollider.y + mCollider.h/2, PVelX/3, PVelY/3, damage);
-		shootingframes = 120;
+		pManager.insert(angle, (mCollider.x + mCollider.w/2), (mCollider.y + mCollider.h/2), PVelX, PVelY, damage);
+		shootingframes = 240;
 	}
 }
 
@@ -476,21 +483,21 @@ void Player::setCamera(SDL_Rect& camera)
 	camera.y = (mCollider.y + (P_HEIGHT/2)) - SCREEN_HEIGHT/2;
 
 	//keep camera in bounds
-	if (camera.x < -camera.w)
+	if (camera.x < -camera.w/2)
 	{
 		camera.x = 0;
 	}
-	if (camera.y < -camera.h)
+	if (camera.y < -camera.h/2)
 	{
 		camera.y = 0;
 	}
-	if (camera.x > LEVEL_WIDTH - camera.w)
+	if (camera.x > LEVEL_WIDTH - camera.w/2)
 	{
 		camera.x = LEVEL_WIDTH - camera.w;
 	}
-	if (camera.y > LEVEL_HEIGHT - camera.h)
+	if (camera.y > LEVEL_HEIGHT - camera.h/2)
 	{
-		camera.y = LEVEL_HEIGHT - camera.h;
+		camera.y = LEVEL_HEIGHT - camera.h/2;
 	}
 }
 
@@ -543,6 +550,10 @@ SDL_Rect* Player::getClip()
 int Player::getDamage()
 {
 	return damage;
+}
+
+void Player::dealDamage(int damage) {
+	health -= damage;
 }
 
 int Player::getHealth()

@@ -1,14 +1,11 @@
 #include "Projectile.h"
 
-LTexture projectileSheets;
-SDL_Rect sprites1[1];
-
-Projectile::Projectile(double angle1, int x, int y, double VelX, double VelY, int damage1, int range1, int speed1, int mtype)
+Projectile::Projectile(bool alive1, double angle1, int x, int y, double VelX, double VelY, int damage1, int range1, int speed1, int mtype)
 {
 	pposx = x;
 	pposy = y;
-	pposw = 5;
-	pposh = 6;
+	pposw = 30;
+	pposh = 18;
 	angle = angle1;
 
 	pVelX = VelX;
@@ -18,8 +15,10 @@ Projectile::Projectile(double angle1, int x, int y, double VelX, double VelY, in
 	range = 10;
 	speed = 3;
 	mType = 0;
-	alive = true;
+	alive = alive1;
 	lifetime = range * 64;
+
+	clip = 0;
 }
 
 bool loadProjectileMedia(SDL_Renderer* gRenderer)
@@ -27,39 +26,81 @@ bool loadProjectileMedia(SDL_Renderer* gRenderer)
 	
 	bool success = true;
 
-	if (!projectileSheets.loadFromFile("images/characters.png", gRenderer))
+	if (!projectileSheets.loadFromFile("images/projectiles.png", gRenderer))
 	{
 		printf("failed the projectile png");
 	}
 	else
 	{
-		sprites1[0].x = 18;
-		sprites1[0].y = 261;
-		sprites1[0].w = 5;
-		sprites1[0].h = 6;
+		sprites1[1].x = 39;
+		sprites1[1].y = 79;
+		sprites1[1].w = 30;
+		sprites1[1].h = 18;
+
+		sprites1[2].x = 80;
+		sprites1[2].y = 79;
+		sprites1[2].w = 30;
+		sprites1[2].h = 18;
+
+		sprites1[3].x = 122;
+		sprites1[3].y = 79;
+		sprites1[3].w = 30;
+		sprites1[3].h = 18;
+
+		sprites1[0].x = 7;
+		sprites1[0].y = 79;
+		sprites1[0].w = 30;
+		sprites1[0].h = 18;
+
+		sprites1[4].x = 10;
+		sprites1[4].y = 42;
+		sprites1[4].w = 11;
+		sprites1[4].h = 9;
+
+		sprites1[5].x = 24;
+		sprites1[5].y = 42;
+		sprites1[5].w = 13;
+		sprites1[5].h = 9;
+
+		sprites1[6].x = 39;
+		sprites1[6].y = 42;
+		sprites1[6].w = 11;
+		sprites1[6].h = 9;
+
+		sprites1[7].x = 24;
+		sprites1[7].y = 42;
+		sprites1[7].w = 11;
+		sprites1[7].h = 9;
 	}
 
 	return success;
 }
 
-void Projectile::renderProjectile(SDL_Rect& camera, SDL_Renderer* gRenderer)
+void Projectile::renderProjectile(SDL_Rect& camera, SDL_Renderer* gRenderer, int clips)
 {
 	
 		//show tile
 		
-		projectileSheets.render(pposx - camera.x, pposy - camera.y, &sprites1[0], gRenderer, angle);
+		projectileSheets.render(pposx - camera.x, pposy - camera.y, &sprites1[clip + (4*clips)], gRenderer, angle);
 	
 }
 
 bool Projectile::move(BaseNpc* enemy)
 {
 	lifetime -= speed;
+	aliveLength++;
 	if (lifetime > 0)
 	{
 		if (!checkHit(enemy->mCollider) || enemy->getAlive())
 		{
 			pposx += pVelX;
 			pposy += pVelY;
+			
+			if (aliveLength % 20 == 0)
+			{
+				clip++;
+				if (clip > 3) clip = 1;
+			}
 
 			return true;
 		}
@@ -67,6 +108,36 @@ bool Projectile::move(BaseNpc* enemy)
 		{
 			enemy->dealDamage(damage);
 			lifetime = 0;	
+		}
+	}
+	alive = false;
+	return false;
+
+}
+
+bool Projectile::enemyMove(Player& enemy)
+{
+	lifetime -= speed;
+	aliveLength++;
+	if (lifetime > 0)
+	{
+		if (!checkHit(enemy.mCollider))
+		{
+			pposx += pVelX;
+			pposy += pVelY;
+
+			if (aliveLength % 20 == 0)
+			{
+				clip++;
+				if (clip > 3) clip = 1;
+			}
+
+			return true;
+		}
+		else
+		{
+			enemy.dealDamage(damage);
+			lifetime = 0;
 		}
 	}
 	alive = false;

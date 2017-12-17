@@ -1,5 +1,6 @@
-#pragma once
-#include "stdafx.h"
+#ifndef __Selected__
+#define __Selected__
+
 #include <SDL_ttf.h>
 #include "Tile.h"
 class Selected
@@ -67,8 +68,8 @@ public:
 			case SDL_BUTTON_LEFT:
 				int x, y;
 				SDL_GetMouseState(&x, &y);
-				x = (x+camera.x) / 64;
-				y = (y+camera.y) / 64;
+				x = (x+camera.x) / 100;
+				y = (y+camera.y) /100;
 				std::cout << x << std::endl;
 				std::cout << y << std::endl;
 				//this will effectively change the map. but not tileset
@@ -123,3 +124,5 @@ public:
 	}
 
 };
+
+#endif

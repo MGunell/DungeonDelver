@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __main__
+#define __main__
 
 enum gameStates
 {
@@ -9,3 +10,5 @@ Pause_menu
 
 bool paused = true;
 bool notPaused = true;
+
+#endif

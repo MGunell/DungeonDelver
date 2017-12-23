@@ -22,7 +22,7 @@ void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue)
 
 void LTexture::free()
 {	
-	std::cout << "a texture was freed" << std::endl;
+	//std::cout << "a texture was freed" << std::endl;
 	//Free texture if it exists
 	if (mTexture != NULL)
 	{
@@ -51,12 +51,15 @@ void LTexture::render(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, dou
 	//Set clip rendering dimensions
 	if (clip != NULL)
 	{
-		renderQuad.w = clip->w*2;
-		renderQuad.h = clip->h*2;
+		renderQuad.w = clip->w;
+		renderQuad.h = clip->h;
 	}
 
 	//Render to screen
-	SDL_RenderCopyEx(gRenderer, mTexture, clip, (&renderQuad), angle, center, flip);
+	if (SDL_RenderCopyEx(gRenderer, mTexture, clip, (&renderQuad), angle, center, flip) == -1)
+	{
+		printf("couldnt copy to screen: %s\n", SDL_GetError() );
+	}
 }
 
 void LTexture::renderInventory(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip)
@@ -83,8 +86,8 @@ void LTexture::renderHalf(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer,
 	//Set clip rendering dimensions
 	if (clip != NULL)
 	{
-		renderQuad.w = (clip->w )* 3;
-		renderQuad.h = (clip->h )* 3;
+		renderQuad.w = (clip->w*2 );
+		renderQuad.h = (clip->h*2 );
 	}
 
 	//Render to screen

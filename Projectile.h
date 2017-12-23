@@ -12,11 +12,12 @@ class Player;
 class Projectile
 {
 public:
-	Projectile(bool alive = false, double angle1 = 0, int x = -100, int y = -100, double VelX = 0, double VelY = 0, int damage1 = 25.0, int range1 = 10, int speed1 = 5, int mtype = 0);
+	Projectile(bool alive = false, double angle1 = 0, int x = -100, int y = -100, double VelX = 0, double VelY = 0, int damage1 = 25.0, int range1 = 5, int speed1 = 5, int mtype = 0);
 	bool move(BaseNpc* enemy);
 	bool enemyMove(Player& player);
 	friend bool loadProjectileMedia(SDL_Renderer* gRenderer);
 	void renderProjectile(SDL_Rect& camera, SDL_Renderer* gRenderer, int clips = 0);
+	friend Projectile* makeProjectile();
 	bool alive;
 	double pposw, pposh;
 

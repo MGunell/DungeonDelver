@@ -1,5 +1,6 @@
 #include "Engine.h"
-
+#include "InventoryRedux.h"
+#include "HyperCube.h"
 
 bool loadTextBoxMedia(SDL_Renderer* gRenderer)
 {
@@ -28,6 +29,13 @@ bool loadTextBoxMedia(SDL_Renderer* gRenderer)
 	{
 		printf("fucked up with word texture");
 		//success = false;
+	}
+
+	textColor = { 0, 0, 0 };
+	gFont = TTF_OpenFont("fonts/lazy.ttf", 90);
+	if (!endMessage.loadFromRenderedText("You Lost", textColor, gRenderer, gFont))
+	{
+		printf("end message failed to load");
 	}
 
 	return success;
@@ -63,9 +71,11 @@ void initSDL()
 		}
 		else
 		{
-			gRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+			gRenderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_SWSURFACE);
 		}
 	}
+
+	loadItemMedia(gRenderer);
 }
 bool firstscript = true;
 void startgame()
@@ -108,25 +118,12 @@ void startMapEditor()
 	Selected selector;
 	initSDL();
 	Tile* tileSet[TOTAL_TILES + 18];
+	Tile mutableTile = { 0, 0, selector.m_selected };
 	int  tileNumbers = 10;
-	int cameraX1, cameraY1;
-	cameraX1 = (SCREEN_WIDTH / tileNumbers);
-	setTiles(tileSet);
-	BaseNpc* basenpc[3];
-	basenpc[0] = new BaseNpc(400, 400);
-	basenpc[1] = new BaseNpc(200, 200);
-	basenpc[2] = new BaseNpc(200, 300);
 	loadLevelOneMedia(tileSet, gRenderer);
-	loadPlayerMedia(gRenderer);
-	loadSlimeMedia(gRenderer);
-	loadProjectileMedia(gRenderer);
-
-	//loadMapLevelMedia(tileSet, gRenderer);
 	
 	SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
-	SDL_Rect largeChat = { 20, 152, 12, 8 };
 	SDL_Event e;
-	ProjectileManager p;
 	SDL_RendererFlip flipType = SDL_FLIP_NONE;
 	int frame = 0;
 	SDL_Rect* currentClip; SDL_Color textColor = { 0, 0, 255 };
@@ -140,15 +137,19 @@ void startMapEditor()
 			}
 			selector.handleEvent(e, tileSet, camera);
 		}
+		Tile mutableTile = { camera.x, camera.y, selector.m_selected };
 		const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
 
 		SDL_RenderClear(gRenderer);
+		gTileTexture.renderHalf(0, 0, &gLevelOneClips[selector.m_selected], gRenderer);
 
 		for (int i = 0; i < TOTAL_TILES; ++i)
 		{
 			tileSet[i]->render(camera, gRenderer);
 		}
-		p.renderAll(camera, gRenderer, basenpc);
+		mutableTile.render(camera, gRenderer);
+
+		//gTileTexture.renderHalf(0, 0, &gLevelOneClips[selector.m_selected], gRenderer);
 
 		
 		//system("CLS");
@@ -159,37 +160,42 @@ void startMapEditor()
 	}
 }
 
+
 void levelOne()
 {
-
+	int cLevel(0);
+	Inventory inventory;
 	initSDL();
-
+	loadPotionMedia(gRenderer);
+	loadCubeMedia(gRenderer);
 	loadTextBoxMedia(gRenderer);
 
-	const int Slimes = 1;
+	const int Slimes = 3;
 	BaseNpc* basenpc[Slimes];
 	//basenpc[0] = new BaseNpc(400, 400);
 	//basenpc[1] = new BaseNpc(200, 200);
-	//basenpc[2] = new BaseNpc(200, 300);
-	basenpc[0] = new BossSlime(500, 100);
+	basenpc[0] = new BaseNpc(200, 300);
+	basenpc[1] = new HyperCube(500, 600);
+	basenpc[2] = new BossSlime(500, 100);
 	//BossSlime Boss(500, 100);
 	//BaseNpc slime1(400, 400);
 	//BaseNpc slime2(200, 200);
 
 	Player player;
-
-	Inventory inventory;
-	Potion smallPotion(-100, -100, 1);
-	Potion largePotion(-100, -100, 2);
-	inventory.placeItem(smallPotion);
-	inventory.placeItem(largePotion);
+	RenderableManager r;
+	Inventory2 inventory2(gRenderer);
+	//r.addRenderablePotion(200, 300, 25, gRenderer);
+	//r.addRenderablePotion(300, 450, 25, gRenderer);
+	//r.addRenderableManaPotion(400, 250, 25, gRenderer);
+	inventory2.placePotion(gRenderer);
+	//inventory.placePotion(1);
+	//inventory.placePotion(2);
 	
 	Tile* tileSet[TOTAL_TILES+18];
 	loadLevelOneMedia(tileSet, gRenderer);
 	loadPlayerMedia(gRenderer);
 	loadSlimeMedia(gRenderer);
 	loadProjectileMedia(gRenderer);
-	loadItemMedia(gRenderer);
 	SDL_Rect camera = {50,100,   SCREEN_WIDTH,SCREEN_HEIGHT};
 	SDL_Rect largeChat = { 20, 152, 12, 8 };
 	SDL_Event e;
@@ -199,6 +205,12 @@ void levelOne()
 	SDL_RendererFlip flipType = SDL_FLIP_NONE;
 	int frame = 0;
 	SDL_Rect* currentClip; 
+
+	for (int i = 0; i < 30; i++)
+	{
+		//droppedItems[i] = new Item();
+	}
+
 	while (true)
 	{
 		while (SDL_PollEvent(&e))
@@ -208,17 +220,17 @@ void levelOne()
 				//quit == true;
 			}
 			player.handleEvent(e);
-			inventory.handleEvent(e);
+			inventory2.handleEvent(e);
 		}
 		const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-		inventory.handleMovement(player);
+		inventory2.handleMovement(player);
 
 		SDL_RenderClear(gRenderer);
 
 		for (int w = 0; w < Slimes; w++)
 		{
 			//basenpc[w]->targetedMove(player, tileSet);
-			basenpc[0]->targetedMove(player, tileSet, enemyP);
+			basenpc[w]->move(player, tileSet, enemyP, r, gRenderer);
 		}
 		//Boss.targetedMove(player, tileSet, enemyP);
 		//slime1.targetedMove(player, tileSet);
@@ -230,50 +242,55 @@ void levelOne()
 		}
 
 		p.renderAll(camera, gRenderer, basenpc);
-		//enemyP.renderAllEnemy(camera, gRenderer, player);
+		enemyP.renderAllEnemy(camera, gRenderer, player);
 
 		for (int x = 0; x < Slimes; x++)
 		{
-			basenpc[x]->render(camera, currentClip, gRenderer, NULL, 0, flipType);
+			basenpc[x]->RenderBatch(camera, currentClip, gRenderer, NULL, 0, flipType);
 			//Boss.render(camera, currentClip, gRenderer, NULL, 0, flipType);
 		}
 		//slime1.render(camera, currentClip, gRenderer, NULL, 0, flipType);
 		//slime2.render(camera, currentClip, gRenderer, NULL, 0, flipType);
 
-
+		//for (int i = 0; i < 30; i++)
+		//{
+			//if (droppedItems[i]->renderable)
+				//droppedItems[i]->renderdrops(camera, gRenderer);
+		//}
 		player.move(tileSet, p, camera);
 		player.setCamera(camera);
 		currentClip = player.getClip();
-		inventory.renderItems(camera, gRenderer);
+		inventory2.renderAll(camera, gRenderer);
+		r.renderAll(gRenderer, camera, player, inventory2);
 		player.render(camera, currentClip, gRenderer, NULL, 0, flipType, &largeChat);
 
-		if (basenpc[0]->getAlive())// && basenpc[1]->getAlive() && basenpc[2]->getAlive())
+		if (basenpc[0]->getAlive() && basenpc[1]->getAlive() && basenpc[2]->getAlive())// && basenpc[1]->getAlive() && basenpc[2]->getAlive())
 		{
 			//this means a level was cleared. we should call this after all render loops
 			//now the player can level up and we can add more enemies
-			player.LevelUp();
-
+			//player.LevelUp();
+			cLevel++;
 			dialogue.loadFromRenderedText("Level: " + std::to_string(player.getLevel()), textColor, gRenderer, gFont);
-			for (int w = 0; w < Slimes; w++)
+			/*for (int w = 0; w < Slimes; w++)
 			{
-				//delete basenpc[w];
-			}
-
-			if (player.getLevel() % 5 == 0 && player.getLevel() > 4)
+				delete basenpc[w];
+			}*/
+			//delete basenpc;
+			if (cLevel > 0 && cLevel % 3 == 0)
 			{
-				//basenpc[0] = new BaseNpc(500, 100);
+				player.LevelUp();
+				basenpc[0] = new BossSlime(500, 100);
+				basenpc[1] = new BossSlime(100, 800);
+				basenpc[2] = new BossSlime(900, 800);
 			}
 			else
 			{
 
-				basenpc[0] = new BossSlime(500, 100);
-				//basenpc[1] = new BaseNpc(200, 200);
-				//basenpc[2] = new BaseNpc(200, 300);
+				basenpc[2] = new BossSlime(500, 100);
+				basenpc[1] = new BaseNpc(200, 200);
+				basenpc[0] = new BaseNpc(200, 300);
 			}
 		}
-		
-		//inventory.debugItem(gRenderer);
-		
 		player.incrementFrames();
 		//system("CLS");
 		//std::cout << player.getLevel();
@@ -281,7 +298,14 @@ void levelOne()
 		//dialogue.loadFromRenderedText("The quick brown fox jumps over the lazy dog", textColor, gRenderer, gFont);
 		dialogue.render((SCREEN_WIDTH - dialogue.getWidth())/2, 30, NULL, gRenderer, NULL, 0, flipType);
 		SDL_RenderPresent(gRenderer);
+
+		if (player.getHealth() <= 0)
+			break;
 	}
+
+	endMessage.render((SCREEN_WIDTH - endMessage.getWidth()) / 2, SCREEN_HEIGHT/2, NULL, gRenderer, NULL, 0, flipType);
+	SDL_RenderPresent(gRenderer);
+	std::cin.get();
 }
 
 bool checkCollision(SDL_Rect a, SDL_Rect b)
@@ -326,7 +350,7 @@ bool touchesWall(SDL_Rect box, Tile* tiles[])
 	//go through the tiles
 	for (int i = 0; i < TOTAL_TILES; i++)
 	{
-		if ((tiles[i]->getType() >= 3) && (tiles[i]->getType() <= 11))
+		if (!((tiles[i]->getType() >= 0) && (tiles[i]->getType() <= 11)))
 		{
 			//check collision box
 			if (checkCollision(box, tiles[i]->getBox()))

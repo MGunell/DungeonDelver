@@ -12,7 +12,7 @@ Projectile::Projectile(bool alive1, double angle1, int x, int y, double VelX, do
 	pVelY = VelY;
 
 	damage = damage1;
-	range = 10;
+	range = range1;
 	speed = 3;
 	mType = 0;
 	alive = alive1;
@@ -81,7 +81,7 @@ void Projectile::renderProjectile(SDL_Rect& camera, SDL_Renderer* gRenderer, int
 	
 		//show tile
 		
-		projectileSheets.render(pposx - camera.x, pposy - camera.y, &sprites1[clip + (4*clips)], gRenderer, angle);
+		projectileSheets.renderHalf(pposx - camera.x, pposy - camera.y, &sprites1[clip + (4*clips)], gRenderer, angle);
 	
 }
 
@@ -113,6 +113,11 @@ bool Projectile::move(BaseNpc* enemy)
 	alive = false;
 	return false;
 
+}
+
+Projectile* makeProjectile()
+{
+	return new Projectile(true, 180, 100, 100, 0, 5);
 }
 
 bool Projectile::enemyMove(Player& enemy)

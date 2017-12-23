@@ -33,10 +33,10 @@ bool loadLevelOneMedia(Tile* tileSet[], SDL_Renderer* gRenderer);
 
 
 const int TOTAL_TILES = 16 * 12;
-const int TOTAL_TILE_SPRITES = 1;
+const int TOTAL_TILE_SPRITES = 11;
 
-const int TILE_HEIGHT = 64;
-const int TILE_WIDTH = 64;
+const int TILE_HEIGHT = 128;
+const int TILE_WIDTH = 128;
 
 static LTexture gTileTexture;
 static SDL_Rect gLevelOneClips[10];

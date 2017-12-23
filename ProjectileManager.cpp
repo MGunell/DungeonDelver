@@ -6,7 +6,7 @@ ProjectileManager::ProjectileManager()
 {
 	used = 0;
 	index = 0;
-	projectiles = new Projectile[21];
+	projectiles = new Projectile[50];
 }
 
 void ProjectileManager::start() {
@@ -23,7 +23,7 @@ void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, Bas
 {
 		for (int i = 0; i < used; i++)
 		{		
-			for (int j = 0; j < Slimes; j++)
+			for (int j = 0; j < 3; j++)
 			{
 				if (projectiles[i].move(enemy[j]) == true)
 				{
@@ -53,7 +53,7 @@ void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer
 		{
 			if (projectiles[i].enemyMove(player))
 			{
-				projectiles[i].renderProjectile(camera, gRenderer, 1);
+				projectiles[i].renderProjectile(camera, gRenderer, 0);
 			}
 
 			else
@@ -71,13 +71,13 @@ void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer
 
 }
 
-void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage)
+void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage, int range1)
 {
-	projectiles[index] = Projectile(true, angle-180, x - projectiles[index].pposw, y - projectiles[index].pposh, velX, velY, 25 + damage);
+	projectiles[index] = Projectile(true, angle-180, x - projectiles[index].pposw, y - projectiles[index].pposh, velX, velY, damage, range1);
 	//projectiles[index].setAngle(angle - 90);
 	used++;
 	index++;
-	if (index > capacity)
+	if (index >= capacity)
 	{
 		index = 0;
 	}

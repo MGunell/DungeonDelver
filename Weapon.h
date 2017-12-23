@@ -1,15 +1,30 @@
-#pragma once
-#include "LTexture.h"
+#ifndef __Weapon__
+#define __Weapon__
 
-class Weapon
+#include "Projectile.h"
+#include "LTexture.h"
+#include "Renderable.h"
+
+class Weapon : public Renderable
 {
 public:
-	Weapon(int damage1, int range1, int speed1);
+	Weapon(int x1, int y1, int resolution, int clip, SDL_Renderer* gRenderer) : Renderable(x1, y1, resolution)
+	{
+		setSpriteFile("images/weapons.png", gRenderer);
+		setSprite(0);
+	}
 
-	int damage;
-	int range;
-	int speed;
-	void renderProjectile(int x, int y);
-	void renderProjectileStep2(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip);
+	virtual void addProjectile();
+
 private:
+	LTexture* Sprite;
+	Projectile* projectile;
+	int damage;
+	int Projectiles;
+	double angle;
+
 };
+
+
+
+#endif

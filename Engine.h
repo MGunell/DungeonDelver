@@ -14,6 +14,7 @@ class BossSlime;
 #include "Selected.h"
 #include "Tile.h"
 #include "Inventory.h"
+#include "RenderableManager.h"
 #include <string>
 bool init();
 bool loadMedia();
@@ -39,6 +40,7 @@ bool touchesPlayer(SDL_Rect box, Player player);
 static SDL_Renderer* gRenderer = NULL;
 static SDL_Window* window = NULL;
 static LTexture dialogue;
+static LTexture endMessage;
 static TTF_Font *gFont = NULL;
 static SDL_Color textColor = { 255, 125, 255 };
 

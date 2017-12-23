@@ -11,8 +11,8 @@ class Inventory;
 
 
 const int scale = 2;
-const int LEVEL_WIDTH = 16 * 64 * 1.5;
-const int LEVEL_HEIGHT = 12 * 64 * 1.5;
+const int LEVEL_WIDTH = 16 * 128;
+const int LEVEL_HEIGHT = 12 * 128;
 const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 900;
 
@@ -56,8 +56,8 @@ public:
 	int getPosY();
 	int getHealth();
 	void heal(int amount) { 
-	if (health + amount < 100) health += amount;
-	else health = 100;
+		if (health + amount < maxHealth) health += amount;
+	else health = maxHealth;
 	}
 	int getDamage();
 	int getLevel();

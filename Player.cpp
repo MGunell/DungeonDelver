@@ -229,18 +229,18 @@ Player::Player()
 	//equippedWeapon = firestaff;
 
 	//set collision box for the player oooh
-	mCollider.w = P_WIDTH;
-	mCollider.h = P_HEIGHT;
+	mCollider.w = 24;
+	mCollider.h = 30;
 
 	mVelX = 0;
 	mVelY = 0;
-	health = 33; 
+	health = 100; 
 	maxHealth = 100;
 	level = 1;
 	damage = 100;
-	dexterity = 20;
+	dexterity = 10;
 	swordRange = 75;
-
+		
 	//drawing a chatbox
 	chatBubble.w = P_WIDTH;
 	chatBubble.h = P_HEIGHT;
@@ -255,7 +255,8 @@ Player::Player()
 void Player::LevelUp()
 {
 	level++;
-	health += 20;
+	maxHealth += 25;
+	health;
 	damage += 40;
 	if (dexterity < 200)
 	dexterity += 1;
@@ -439,8 +440,12 @@ void Player::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, d
 		gSpriteSheetTexture.renderHalf(mCollider.x - camera.x, (mCollider.y - 8 * scale) - camera.y, clip2,gRenderer, angle, center, flip);
 	}
 
-	
-	healthBox.w = (health * 3); 
+	double widths = (health * 300 / maxHealth) ;
+	if (widths < 0)
+	{
+		widths = 0;
+	}
+	healthBox.w = widths; 
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
 	SDL_RenderFillRect(gRenderer, maxHealthBox1);
 	SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -452,7 +457,7 @@ void Player::shoot(ProjectileManager& pManager, int x, int y)
 {
 	if (shootable)
 	{
-	int scale = 5;
+	int scale = 2;
 
 	int mX = x, mY = y;
 
@@ -462,7 +467,7 @@ void Player::shoot(ProjectileManager& pManager, int x, int y)
 	double PVelX = scale * cos(angle);
 	angle = (angle * (180 / PI))+180;
 	
-		pManager.insert(angle, (mCollider.x + mCollider.w/2), (mCollider.y + mCollider.h/2), PVelX, PVelY, damage);
+		pManager.insert(angle, (mCollider.x + mCollider.w/2), (mCollider.y + mCollider.h/2), PVelX, PVelY, damage, 10);
 		shootingframes = 240;
 	}
 }

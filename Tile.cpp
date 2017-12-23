@@ -65,75 +65,73 @@ bool setTiles(Tile* tiles[])
 				break;
 			}
 
-			if (tileType >= 0)
-			{
-				tiles[i] = new Tile(x, y, tileType);
-			}
-			else
-			{
-				tilesLoaded = false;
-				break;
-			}
+			
+			tiles[i] = new Tile(x, y, tileType);
 
 			//move to next spot
-			x += static_cast<int>(TILE_WIDTH * 1.5);
-			if (x >= (16 * TILE_WIDTH * 1.5))
+			x += static_cast<int>(TILE_WIDTH );
+			if (x >= (16 * TILE_WIDTH))
 			{
 				x = 0;
-				y += static_cast<int>(TILE_HEIGHT * 1.5);
+				y += static_cast<int>(TILE_HEIGHT);
 			}
 		}
 		if (tilesLoaded)
 		{
-			gLevelOneClips[0].x = 640;
+			gLevelOneClips[0].x = 0;
 			gLevelOneClips[0].y = 0;
-			gLevelOneClips[0].w = 32;
-			gLevelOneClips[0].h = 32;
+			gLevelOneClips[0].w = 64;
+			gLevelOneClips[0].h = 64;
 
-			gLevelOneClips[1].x = 672;
-			gLevelOneClips[1].y = 224;
-			gLevelOneClips[1].w = 32;
-			gLevelOneClips[1].h = 32;
+			gLevelOneClips[1].x = 64;
+			gLevelOneClips[1].y = 0;
+			gLevelOneClips[1].w = 64;
+			gLevelOneClips[1].h = 64;
 
-			gLevelOneClips[2].x = 672;
-			gLevelOneClips[2].y = 192;
-			gLevelOneClips[2].w = 32;
-			gLevelOneClips[2].h = 32;
+			gLevelOneClips[2].x = 128;
+			gLevelOneClips[2].y = 0;
+			gLevelOneClips[2].w = 64;
+			gLevelOneClips[2].h = 64;
 
-			gLevelOneClips[3].x = 640;
-			gLevelOneClips[3].y = 256;
-			gLevelOneClips[3].w = 32;
-			gLevelOneClips[3].h = 32;
+			gLevelOneClips[3].x = 192;
+			gLevelOneClips[3].y = 0;
+			gLevelOneClips[3].w = 64;
+			gLevelOneClips[3].h = 64;
 
-			gLevelOneClips[4].x = 480;
-			gLevelOneClips[4].y = 896;
-			gLevelOneClips[4].w = 32;
-			gLevelOneClips[4].h = 32;
+			gLevelOneClips[4].x = 256;
+			gLevelOneClips[4].y = 0;
+			gLevelOneClips[4].w = 64;
+			gLevelOneClips[4].h = 64;
 
-			gLevelOneClips[5].x = 512;
-			gLevelOneClips[5].y = 896;
-			gLevelOneClips[5].w = 32;
-			gLevelOneClips[5].h = 32;
+			gLevelOneClips[5].x = 128;
+			gLevelOneClips[5].y = 64;
+			gLevelOneClips[5].w = 64;
+			gLevelOneClips[5].h = 64;
 
-			gLevelOneClips[6].x = 544;
-			gLevelOneClips[6].y = 896;
-			gLevelOneClips[6].w = 32;
-			gLevelOneClips[6].h = 32;
+			gLevelOneClips[6].x = 194;
+			gLevelOneClips[6].y = 64;
+			gLevelOneClips[6].w = 64;
+			gLevelOneClips[6].h = 64;
 
-			gLevelOneClips[7].x = 704;
-			gLevelOneClips[7].y = 288;
-			gLevelOneClips[7].w = 32;
-			gLevelOneClips[7].h = 32;
+			gLevelOneClips[7].x = 256;
+			gLevelOneClips[7].y = 64;
+			gLevelOneClips[7].w = 64;
+			gLevelOneClips[7].h = 64;
 
-			//gLevelOneClips[8].x = 640;
-			//gLevelOneClips[8].y = 256;
-			//gLevelOneClips[8].w = 32;
-			//gLevelOneClips[8].h = 32;
+			gLevelOneClips[8].x = 128;
+			gLevelOneClips[8].y = 128;
+			gLevelOneClips[8].w = 64;
+			gLevelOneClips[8].h = 64;
 
-			//gLevelOneClips[9].x = 640;
-			//gLevelOneClips[9].y = 256;
-			//gLevelOneClips[9].w = 32;
-			//gLevelOneClips[9].h = 32;
+			gLevelOneClips[9].x = 194;
+			gLevelOneClips[9].y = 128;
+			gLevelOneClips[9].w = 64;
+			gLevelOneClips[9].h = 64;
+
+			gLevelOneClips[10].x = 256;
+			gLevelOneClips[10].y = 128;
+			gLevelOneClips[10].w = 64;
+			gLevelOneClips[10].h = 64;
 		}
 	}
 
@@ -145,7 +143,7 @@ bool setTiles(Tile* tiles[])
 bool loadLevelOneMedia(Tile* tileSet[], SDL_Renderer* gRenderer)
 {
 	bool success = true;
-	if (!gTileTexture.loadFromFile("images/levelone.png", gRenderer))
+	if (!gTileTexture.loadFromFile("images/tiles.png", gRenderer))
 	{
 		printf("couldnt load level one textures");
 		success = false;

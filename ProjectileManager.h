@@ -11,11 +11,11 @@ class Projectile;
 class ProjectileManager {
 public:
 	ProjectileManager();
-	const int capacity = 30;
+	const int capacity = 50;
 	void renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, BaseNpc* enemy[]);
 	void renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer, Player& player);
 
-	void insert(double angle, int x,int y, double velX, double velY, int damage);
+	void insert(double angle, int x,int y, double velX, double velY, int damage, int range1 = 5);
 	void remove_current();
 	void start();
 	void advance();

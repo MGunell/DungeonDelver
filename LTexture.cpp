@@ -26,7 +26,7 @@ void LTexture::free()
 	//Free texture if it exists
 	if (mTexture != NULL)
 	{
-		//SDL_DestroyTexture(mTexture);
+		SDL_DestroyTexture(mTexture);
 		mTexture = NULL;
 		mWidth = 0;
 		mHeight = 0;
@@ -51,8 +51,8 @@ void LTexture::render(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, dou
 	//Set clip rendering dimensions
 	if (clip != NULL)
 	{
-		renderQuad.w = clip->w;
-		renderQuad.h = clip->h;
+		renderQuad.w = clip->w*4;
+		renderQuad.h = clip->h*4;
 	}
 
 	//Render to screen
@@ -65,13 +65,13 @@ void LTexture::render(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, dou
 void LTexture::renderInventory(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip)
 {
 	//Set rendering space and render to screen
-	SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+	SDL_Rect renderQuad = { x - 1, y - 1, mWidth, mHeight };
 
 	//Set clip rendering dimensions
 	if (clip != NULL)
 	{
-		renderQuad.w = clip->w;
-		renderQuad.h = clip->h;
+		renderQuad.w = clip->w + 2;
+		renderQuad.h = clip->h + 2;
 	}
 
 	//Render to screen
@@ -86,13 +86,29 @@ void LTexture::renderHalf(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer,
 	//Set clip rendering dimensions
 	if (clip != NULL)
 	{
-		renderQuad.w = (clip->w*2 );
-		renderQuad.h = (clip->h*2 );
+		renderQuad.w = (clip->w * 3);
+		renderQuad.h = (clip->h * 3);
 	}
 
 	//Render to screen
 	SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, flip);
 }
+
+/*void LTexture::render3D(int x, int y, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, double )
+{
+//Set rendering space and render to screen
+SDL_Rect renderQuad = { x, y, mWidth, mHeight };
+
+//Set clip rendering dimensions
+if (clip != NULL)
+{
+	renderQuad.w = (clip->w * 2);
+	renderQuad.h = (clip->h * 2);
+}
+
+//Render to screen
+SDL_RenderCopyEx(gRenderer, mTexture, clip, &renderQuad, angle, center, NULL);
+}*/
 
 
 bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer)
@@ -167,6 +183,41 @@ bool LTexture::loadFromRenderedText(std::string textureText, SDL_Color textColor
 	}
 	
 	
+	return mTexture != NULL;
+
+}
+
+bool LTexture::loadFromRenderedTextWrapped(std::string textureText, SDL_Color textColor, SDL_Renderer *gRenderer, TTF_Font *gFont)
+{
+	free();
+
+	//render text surface
+	SDL_Surface* textSurface = TTF_RenderText_Blended_Wrapped(gFont, textureText.c_str(), textColor, 250);
+	if (textSurface == NULL)
+	{
+		printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+	}
+	else
+	{
+		//createww texture from surface
+		mTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+		if (mTexture == NULL)
+		{
+			//nothing yet pritn error message would be nice
+			printf("error getting thexture from surface Error: %s", TTF_GetError());
+		}
+		else
+		{
+			//get image demensions through sorcery
+			mWidth = textSurface->w;
+			mHeight = textSurface->h;
+		}
+
+		//get rid of old surface
+		SDL_FreeSurface(textSurface);
+	}
+
+
 	return mTexture != NULL;
 
 }

@@ -6,6 +6,7 @@
 
 BossSlime::BossSlime(int x, int y) : BaseNpc(x, y)
 {
+	name = "Boss";
 	mCollider.x = x;
 	mCollider.y = y;
 	mCollider.w = 48;
@@ -19,18 +20,17 @@ BossSlime::BossSlime(int x, int y) : BaseNpc(x, y)
 }
 
 void BossSlime::shoot(Player& player, ProjectileManager& p) {
-	int scale = 12;
+	int scale = 3;
 
-	double angle = getAngle(player.mCollider.x + (player.mCollider.w*2), player.mCollider.y + (player.mCollider.h*2));
+	double angle = getAngle(player.mCollider.x + (player.mCollider.w), player.mCollider.y + (player.mCollider.h));
 	double PVelY = scale * sin(angle);
 	double PVelX = scale * cos(angle);
 	
-	angle = (angle * (180 / PI)) + 170 + (rand()%20);
-	
+	angle = (angle * (180 / PI));
 
 	if (shootingFrames % 35 == 0)
 	{
-		p.insert(angle, (mCollider.x + mCollider.w / 2), (mCollider.y + mCollider.h / 2), PVelX / 3, PVelY / 3, damage);
+		p.insert(angle, (mCollider.x + mCollider.w), (mCollider.y + mCollider.h ), PVelX, PVelY, damage, 5, 3);
 	}
 }
 
@@ -61,12 +61,12 @@ void BossSlime::setMoveDirections(Player& player)
 
 }
 
-void BossSlime::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
+void BossSlime::targetedMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
 {
 
 	mCollider.x += nVelX;
 	
-	if ((mCollider.x < 0) || (mCollider.x + 60 >  LEVEL_WIDTH) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
+	if ((mCollider.x < 0) || (mCollider.x + 60 >  LEVEL_WIDTH) || touchesWall(mCollider, room, 64) || touchesPlayer(mCollider, player))
 	{
 		mCollider.x -= nVelX;
 		
@@ -74,7 +74,7 @@ void BossSlime::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p
 
 	mCollider.y += nVelY;
 
-	if ((mCollider.y < 00) || (mCollider.y + 60 > LEVEL_HEIGHT) || touchesWall(mCollider, tiles) || touchesPlayer(mCollider, player))
+	if ((mCollider.y < 00) || (mCollider.y + 60 > LEVEL_HEIGHT) || touchesWall(mCollider, room, 64) || touchesPlayer(mCollider, player))
 	{
 		mCollider.y -= nVelY;
 	
@@ -92,7 +92,7 @@ void BossSlime::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p
 
 	shootingFrames++;
 
-	if (getAlive()) die(r, gRenderer);
+	if (getAlive()) die(r, gRenderer, &player);
 
 }
 

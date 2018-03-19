@@ -12,9 +12,10 @@ extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
 
 const int ITEMS = 10;
-static LTexture itemTexture;
 static LTexture inventoryTexture;
+static LTexture itemTexture;
 static SDL_Rect itemImage[ITEMS];
+
 
 struct invBoxes
 {
@@ -36,6 +37,7 @@ class Item {
 	int x, y, width, height;
 	int textureClip;
 	bool renderable;
+	SDL_Rect ok = { 0, 0, 25, 25 };
 
 	int slot = -1;
 
@@ -48,23 +50,52 @@ class Item {
 	virtual void click(Player& player) {
 		std::cout << "click" << std::endl;
 	};
-	virtual void render(SDL_Rect& camera, SDL_Renderer* gRenderer)
+	virtual void render(SDL_Renderer* gRenderer)
 	{
-		itemTexture.render(x + 4, y + 2, &itemImage[textureClip], gRenderer);
+		//std::cout << x << ", " << y << std::endl;
+		//std::cout << ok.x << ok.w;
+		itemTexture.render(x + 4, y + 2, &ok, gRenderer);
+
 		//SDL_SetRenderDrawColor(gRenderer, 255, 0, 255, 255);
-		//SDL_RenderFillRect(gRenderer, &boundary);
+		//SDL_RenderFillRect(gRenderer, &itemImage[1]);
 	};
+
+	virtual void renderDrops(SDL_Rect& camera, SDL_Renderer* gRenderer)
+	{
+		itemTexture.render(x - camera.x, y - camera.y, &itemImage[textureClip], gRenderer);
+	};
+
+	virtual void addItem(Item* items[])
+	{
+		for (int i = 0; i < 30; i++)
+		{
+			if (items[i]->empty == true)
+			{
+
+			}
+				
+		}
+	}
 	//LTexture itemTexture;
 	SDL_Rect boundary;//these will be the coordinates of the item in the spriteSheet;
 
 };
+extern Item* droppedItems[30];
+
+static int getEmpty(Item* items[]) {
+	for (int i = 0; i < 30; i++) {
+		if (items[i]->empty == true) return i;
+	}
+	return -1;
+}
+
 
 class Potion : public Item {
 public:
 	Potion(int x, int y, int textureClip) : Item(x, y, textureClip) { 
 		renderable = true;
-		width = 18;
-		height = 30;
+		width = 25;
+		height = 25;
 		healingAmount = 25;
 	}
 
@@ -76,6 +107,13 @@ public:
 	virtual void click(Player& player) {
 		std::cout << "you drank a potion and regained some hp" << std::endl;
 		player.heal(healingAmount);
+	}
+
+	void addItem(Item* items[])
+	{
+		int empty = getEmpty(items);
+		delete items[empty];
+		items[empty] = new Potion(x, y, textureClip);
 	}
 
 	int healingAmount;
@@ -105,6 +143,7 @@ public:
 		inventory_open = true;
 		mouseCollider = { 0, 0, 5, 5 };
 		clicking = false;
+		activating = false;
 	}
 
 	void handleEvent(SDL_Event& e)
@@ -160,16 +199,16 @@ public:
 		}
 	}
 
-	void placeItem(Item& a)
+	void placePotion(int clip)
 	{
 		for (int i = 0; i < maxCapacity; i++)
 		{
 			if (slots[i].empty == true)
 			{
 				//delete capacity[i];
-				a.x = slots[i].x;
-				a.y = slots[i].y;
-				capacity[i] = new Potion(a.x, a.y, a.textureClip);
+				int x = slots[i].x;
+				int y = slots[i].y;
+				capacity[i] = new Potion(x, y, clip);
 				capacity[i]->slot = i;	
 
 				slots[i].empty = false;
@@ -178,6 +217,7 @@ public:
 
 		}
 	}
+
 
 	void debugItem(SDL_Renderer* grenderer) {
 		int x, y;
@@ -220,6 +260,7 @@ public:
 
 				if (activating)
 				{
+					activating = false;
 					
 					if (mem1 > -1)
 					{
@@ -235,7 +276,6 @@ public:
 
 						}
 
-						activating = false;
 						for (int i = 0; i < maxCapacity; i++)
 						{
 							if (mem1 >= 0 && mem1 != i)//&& capacity[i].renderable)
@@ -470,11 +510,11 @@ public:
 			inventoryTexture.renderInventory(UI.x + 5, SCREEN_HEIGHT / 2, &itemImage[0], gRenderer);
 			for (int i = 0; i < maxCapacity; i++)
 			{
-				//DL_Rect hbox = { capacity[i].x, capacity[i].y, capacity[i].width, capacity[i].height };
-				//DL_RenderFillRect(gRenderer, &hbox);
+				/*SDL_Rect hbox = { capacity[i]->x, capacity[i]->y, capacity[i]->width, capacity[i]->height };
+				SDL_RenderFillRect(gRenderer, &hbox);*/
 				if (capacity[i]->getRenderable())
 				{
-					capacity[i]->render(camera, gRenderer);
+					capacity[i]->render(gRenderer);
 				}
 			}
 		}
@@ -508,21 +548,30 @@ private:
 	};
 
 static void loadItemMedia(SDL_Renderer* gRenderer) {
+	{
 		inventoryTexture.loadFromFile("images/inventory.png", gRenderer);
 		itemImage[0].x = 0;
 		itemImage[0].y = 0;
 		itemImage[0].w = 335;
 		itemImage[0].h = 195;
+	}		
+};
 
-		itemTexture.loadFromFile("images/potions.png", gRenderer);
-		itemImage[1].x = 26;
+static void loadPotionMedia(SDL_Renderer* gRenderer)
+{
+	{
+		itemTexture.loadFromFile("images/potions2.png", gRenderer);
+		itemImage[1].x = 0;
 		itemImage[1].y = 0;
 		itemImage[1].w = 25;
 		itemImage[1].h = 25;
 
-		itemImage[2].x = 51;
+		itemImage[2].x = 26;
 		itemImage[2].y = 0;
 		itemImage[2].w = 25;
 		itemImage[2].h = 25;
-	};
+	}
+
+}
+
 #endif

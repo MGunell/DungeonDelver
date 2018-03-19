@@ -10,7 +10,7 @@ class BossSlime : public BaseNpc
 {
 public:
 	BossSlime(int x, int y);
-	void targetedMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
+	void targetedMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
 	void shoot(Player& player, ProjectileManager& p);
 	void setMoveDirections(Player& player);
 

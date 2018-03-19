@@ -12,7 +12,7 @@ RenderableManager::~RenderableManager()
 {
 }
 
-void RenderableManager::renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Player& p, Inventory2& inv)
+void RenderableManager::renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Player* p, Inventory3* inv)
 {
 	for (int i = 0; i < used; i++)
 	{
@@ -21,16 +21,39 @@ void RenderableManager::renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Pla
 			renderQueue[i]->waveMove();
 			renderQueue[i]->render(gRenderer, camera);
 
-			if (PickUp(*renderQueue[i], p))
+			if (PickUp(*renderQueue[i], *p))
 			{
-				renderQueue[i]->placeItem(inv, gRenderer);
+
 				renderQueue[i]->lifetime = 0;
+				renderQueue[i]->placeItem(inv);
 			}
 		}
-
 		else
 		{
 			if (used > 1 && i < used-1)
+			{
+				delete renderQueue[i];
+				renderQueue[i] = renderQueue[used - 1];
+			}
+			used--;
+		}
+	}
+}
+
+void RenderableManager::renderAll(SDL_Renderer* gRenderer, Inventory3* inv)
+{
+	SDL_Rect camera = { 0, 0, 1200, 900 };
+	for (int i = 0; i < used; i++)
+	{
+		if (renderQueue[i]->getAlive())
+		{
+			renderQueue[i]->waveMove();
+			renderQueue[i]->render(gRenderer, camera);
+		}
+		else
+		{
+			renderQueue[i]->placeItem(inv);
+			if (used > 1 && i < used - 1)
 			{
 				renderQueue[i] = renderQueue[used - 1];
 			}
@@ -39,9 +62,9 @@ void RenderableManager::renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Pla
 	}
 }
 
-void RenderableManager::addRenderablePotion(int x, int y, int resolution, SDL_Renderer* gRenderer)
+void RenderableManager::addRenderable(Renderable* target)
 {
-	renderQueue[used] = new RPotion(x, y, resolution, 0, gRenderer);
+	renderQueue[used] = target;
 	used++;
 }
 

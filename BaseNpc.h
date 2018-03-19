@@ -8,6 +8,7 @@ class Inventory;
 class Item;
 class Potion;
 class RenderableManager;
+class Room;
 #include "LTexture.h"
 #include "SDL.h"
 #include "Player.h"
@@ -17,8 +18,8 @@ class RenderableManager;
 
 
 
-bool checkCollision(SDL_Rect a, SDL_Rect b);
-bool touchesWall(SDL_Rect box, Tile* tiles[]);
+bool checkCollision(SDL_Rect a, SDL_Rect b, int offsety);
+bool touchesWall(SDL_Rect box, Room* room, int offsety);
 bool touchesPlayer(SDL_Rect box, Player player);
 
 class BaseNpc
@@ -27,19 +28,19 @@ public:
 	BaseNpc(int x, int y);
 	
 	double getAngle(int x, int y);
-	void RenderBatch(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip);
-	virtual void move(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
-	virtual void targetedMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
-	virtual void setMoveDirections(Player& player);
+	void RenderBatch(SDL_Rect& camera, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, Player* player, Room* room);
+	virtual bool move(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
+	virtual void targetedMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
+	virtual void setMoveDirections(Player& player, Room* room);
 	virtual void shoot(Player& player, ProjectileManager& p)
 	{
 		
 	}
 	virtual void dealDamage(int pdamage);
-	void die(RenderableManager& r, SDL_Renderer* gRenderer);
-	void smoothMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
+	void die(RenderableManager& r, SDL_Renderer* gRenderer, Player* player);
+	void smoothMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer);
 
-	virtual void render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip);
+	virtual void render(SDL_Rect& camera, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, Player* player, Room* room);
 	virtual bool getAlive();
 	double nPosX, nPosY;
 	double nVelX, nVelY;
@@ -54,7 +55,7 @@ public:
 
 	double getxDirection(Player& player );
 	double getyDirection(Player& player );
-
+	std::string name;
 	int snum = 0;
 	double health;
 	double maxHealth;

@@ -4,6 +4,7 @@
 class Renderable;
 class RPotion;
 class Inventory;
+class Inventory3;
 #include "SDL.h"
 #include "Renderable.h"
 
@@ -13,9 +14,10 @@ public:
 	RenderableManager();
 	~RenderableManager();
 	
-	void renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Player& p, Inventory2& inv);
+	void renderAll(SDL_Renderer* gRenderer, SDL_Rect& camera, Player* p, Inventory3* inv);
 
-	void addRenderablePotion(int x, int y, int resolution, SDL_Renderer* gRenderer);
+	void renderAll(SDL_Renderer* gRenderer, Inventory3* inv);
+	void addRenderable(Renderable* target);
 
 	void addRenderableManaPotion(int x, int y, int resolution, SDL_Renderer* gRenderer);
 

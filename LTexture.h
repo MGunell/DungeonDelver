@@ -17,6 +17,7 @@ public:
 	bool loadFromFile(std::string path, SDL_Renderer* gRenderer);
 
 	bool loadFromRenderedText(std::string textureText, SDL_Color textColor, SDL_Renderer* gRenderer, TTF_Font* gFont);
+	bool loadFromRenderedTextWrapped(std::string textureText, SDL_Color, SDL_Renderer* gRenderer, TTF_Font* gFont);
 
 	void free();
 
@@ -31,8 +32,9 @@ public:
 	int getWidth();
 	int getHeight();
 
-private:
 	SDL_Texture* mTexture;
+private:
+	
 
 	int mWidth;
 	int mHeight;

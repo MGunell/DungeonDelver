@@ -1,12 +1,15 @@
 #include "RPotion.h"
 #include "Inventory.h"
+#include "Equipment_Inventory.h"
 
 void RPotion::placeItem(Inventory& inv)
 {
 	inv.placePotion(1);
 }
 
-void RPotion::click(Player& player)
+bool RPotion::click(Player* player, EquipInv* equip, SDL_Renderer* gRenderer, Inventory3* inventory, ProjectileManager* pManager)
 {
-	player.heal(25);
+	player->heal(healAmount);
+	return false;
+	//delete the object from inventory
 }

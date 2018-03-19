@@ -1,4 +1,6 @@
 #include "ProjectileManager.h"
+#include "Room.h"
+#include "EnemyManager.h"
 #include <cassert>
 int Slimes = 1;
 
@@ -6,7 +8,7 @@ ProjectileManager::ProjectileManager()
 {
 	used = 0;
 	index = 0;
-	projectiles = new Projectile[50];
+	projectiles = new Projectile[1000];
 }
 
 void ProjectileManager::start() {
@@ -19,17 +21,15 @@ void ProjectileManager::advance()
 	index++;
 }
 
-void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, BaseNpc* enemy[])
+void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, EnemyManager* eM, Room* room, Player* player)
 {
 		for (int i = 0; i < used; i++)
-		{		
-			for (int j = 0; j < 3; j++)
-			{
-				if (projectiles[i].move(enemy[j]) == true)
+		{	
+			projectiles[i].move(room);
+				if (projectiles[i].checkCollide(eM) ==false)
 				{
-					projectiles[i].renderProjectile(camera, gRenderer);
+					projectiles[i].renderProjectile(camera, gRenderer, player, room->rotation);
 				}
-
 				else
 				{
 					if (i != used - 1)
@@ -41,11 +41,11 @@ void ProjectileManager::renderAll(SDL_Rect& camera, SDL_Renderer* gRenderer, Bas
 					}
 				}
 			}
-		}
+	}
 			
-}
 
-void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer, Player& player)
+
+void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer, Player& player, Room* room)
 {
 	for (int i = 0; i < used; i++)
 	{
@@ -53,7 +53,7 @@ void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer
 		{
 			if (projectiles[i].enemyMove(player))
 			{
-				projectiles[i].renderProjectile(camera, gRenderer, 0);
+				projectiles[i].renderProjectile(camera, gRenderer, &player, room->rotation);
 			}
 
 			else
@@ -71,9 +71,10 @@ void ProjectileManager::renderAllEnemy(SDL_Rect& camera, SDL_Renderer* gRenderer
 
 }
 
-void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage, int range1)
+void ProjectileManager::insert(double angle, int x, int y, double velX, double velY, int damage, int range1, int mtype1, int speed)
 {
-	projectiles[index] = Projectile(true, angle-180, x - projectiles[index].pposw, y - projectiles[index].pposh, velX, velY, damage, range1);
+	
+	projectiles[index] = Projectile(true, angle, x, y , velX, velY, damage, range1, speed, mtype1);
 	//projectiles[index].setAngle(angle - 90);
 	used++;
 	index++;
@@ -82,6 +83,17 @@ void ProjectileManager::insert(double angle, int x, int y, double velX, double v
 		index = 0;
 	}
 	//std::cout << "insterted a projectile" << "used " << used << " index " << index-1 << std::endl;
+}
+
+void ProjectileManager::insert(Projectile* projectile)
+{
+	projectiles[index] = *projectile;
+	used++;
+	index++;
+	if (index >= capacity)
+	{
+		index = 0;
+	}
 }
 
 

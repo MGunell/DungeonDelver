@@ -6,20 +6,25 @@ int main(int argc, char* args[])
 {
 	//loadsomeFiles();
 	//loadMenu();
-	gameStates states = New_game;
-	switch (states)
-	{
-	case start_game:
-		startgame();
-	case New_game:
+	//gameStates states = New_game;
+	//int input;
+	//std::cin >> input;
+	//switch (input)
+	//{
+	//case 1:
+		//startMapEditor();
+	//case 2:
 		levelOne();
+	//_3D_Engine_Init();
+
+
 		//startMapEditor();
 		//while (notPaused == true) {};
 		//New_game();//run the new game stuff that you need to get user input and calibrate everything
-		break;
-	case Pause_menu:
+		//break;
+	//case 3:
 		//while (paused == true) {};
-			break;
-	};
+			//break;
+	//};
 	return 0;
 }

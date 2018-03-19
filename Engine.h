@@ -5,6 +5,7 @@ class Player;
 class Tile;
 class BaseNpc;
 class BossSlime;
+class Weapon;
 
 
 
@@ -23,9 +24,11 @@ void startgame();
 void levelOne();
 void initSDL();
 void startMapEditor();
+void loadLevelMesh();
+void _3D_Engine_Init();
 
-bool checkCollision(SDL_Rect a, SDL_Rect b);
-bool touchesWall(SDL_Rect box, Tile* tiles[]);
+bool checkCollision(SDL_Rect a, SDL_Rect b, int offsety);
+bool touchesWall(SDL_Rect box, Room* room, int offsety);
 bool touchesPlayer(SDL_Rect box, Player player);
 
 //The music that will be played
@@ -43,5 +46,6 @@ static LTexture dialogue;
 static LTexture endMessage;
 static TTF_Font *gFont = NULL;
 static SDL_Color textColor = { 255, 125, 255 };
+
 
 #endif

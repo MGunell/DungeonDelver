@@ -2,21 +2,20 @@
 #include <math.h>
 #include "Player.h"
 #include "InventoryRedux.h"
+#include "Equipment_Inventory.h"
+
 
 #define PI 3.14
 
-Renderable::Renderable(int x1, int y1, int resolution) {
+Renderable::Renderable(int x1, int y1) {
 	x = x1;
 	y = y1;
-	width = resolution;
-	height = resolution;
-	spriteNum = 0;
 	angle = 0;
-	lifetime = 3600;
-	slot = 0;
+	lifetime = 300;
+	slot = -1;
 	renderable = false;
-
-	setClips();
+	textColor = { 0, 0, 0 };
+	gFont1 = TTF_OpenFont("fonts/lazy.ttf", 30);
 };
 
 void Renderable::setClips() {
@@ -34,6 +33,11 @@ void Renderable::setClips() {
 
 void Renderable::setSpriteFile(std::string filename, SDL_Renderer* gRenderer) {
 	sprite.loadFromFile(filename, gRenderer);
+}
+
+void Renderable::render(int x, int y, SDL_Renderer* gRenderer, double angle)
+{
+	sprite.renderHalf(x, y, &clips[spriteNum], gRenderer, angle);
 }
 
 void Renderable::render(SDL_Renderer* gRenderer, SDL_Rect& camera)
@@ -54,9 +58,9 @@ void Renderable::waveMove() {
 	lifetime -= 3;
 }
 
-void Renderable::placeItem(Inventory2& inv, SDL_Renderer* gRenderer)
+void Renderable::placeItem(Inventory3* inv)
 {
-	inv.placePotion(gRenderer);
+	inv->addItem(this);
 }
 
 //Item* Renderable::placeSelf(int x, int y)

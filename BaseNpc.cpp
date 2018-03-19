@@ -1,12 +1,15 @@
 #include "BaseNpc.h"
 #include "RenderableManager.h"
 #include <math.h>
+#include "Bow.h"
+#include "Room.h"
 #define PI 3.14
 
 //extern Item* droppedItems[30];
 
 BaseNpc::BaseNpc(int x, int y)
 {
+	name = "slime";
 	drops = false;
 	frame = 0;
 	nPosX = 0;
@@ -48,10 +51,12 @@ double BaseNpc::getAngle(int x, int y)
 	return angle;
 }
 
-void BaseNpc::die(RenderableManager& r, SDL_Renderer* gRenderer)
-{
-	if (!drops)
+void BaseNpc::die(RenderableManager& r, SDL_Renderer* gRenderer, Player* player)
+{	
+	/*if (!drops)
 	{
+		Renderable* temporary = new Bow(mCollider.x, mCollider.y, 1, 0, gRenderer, 0, 50, 10, 4);
+		Renderable* temporary2 = new Bow(mCollider.x, mCollider.y, 1, 1, gRenderer, 1, 20, 10);
 		drops = true;
 		srand(time(NULL));
 		int whatItem = rand() % 2;
@@ -64,13 +69,15 @@ void BaseNpc::die(RenderableManager& r, SDL_Renderer* gRenderer)
 		switch (whatItem)
 		{
 		case 0:
-			r.addRenderablePotion(mCollider.x + randxf, mCollider.y + randyf, 25, gRenderer);
+			r.addRenderable(temporary);
 			break;
 		case 1:
-			r.addRenderableManaPotion(mCollider.x + randxf, mCollider.y + randyf, 25, gRenderer);
+			r.addRenderable(temporary2);
 			break;
 		}
-	}
+		*/
+		player->giveExperience(25);
+	
 }
 
 double BaseNpc::getxDirection(Player& player) 
@@ -83,7 +90,7 @@ double BaseNpc::getyDirection(Player& player)
 	return player.getPosY();
 }
 
-void BaseNpc::setMoveDirections(Player& player)
+void BaseNpc::setMoveDirections(Player& player, Room* room)
 {
 	//tan(theta) = y height away/x height away
 	//so actual angle = 
@@ -122,7 +129,7 @@ void BaseNpc::setMoveDirections(Player& player)
 	
 }
 
-void BaseNpc::smoothMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
+void BaseNpc::smoothMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
 {
 	//first get x and y distance away
 	if (smoothFlag)
@@ -165,8 +172,8 @@ void BaseNpc::smoothMove(Player& player, Tile* tiles[], ProjectileManager& p, Re
 
 	if (!smoothFlag)
 	{
-		setMoveDirections(player);
-		targetedMove(player, tiles, p, r, gRenderer);
+		setMoveDirections(player, room);
+		targetedMove(player, room, p, r, gRenderer);
 	}
 
 }
@@ -181,18 +188,21 @@ void BaseNpc::dealDamage(int pdamage)
 	}
 }
 
-void BaseNpc::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
+void BaseNpc::targetedMove(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
 {
-	mCollider.x += nVelX;
-	if ((mCollider.x < 0) || (mCollider.x + 60 >  LEVEL_WIDTH) || touchesWall(mCollider, tiles))
+	//pposy += pVelX * sin(-room->rotation) + pVelY * cos(-room->rotation);
+	//pposx += pVelX * cos(-room->rotation) - pVelY * sin(-room->rotation);
+
+	mCollider.x += nVelX;// *cos(-room->rotation) - nVelY * sin(-room->rotation);
+	if ((mCollider.x < (room->x * 64)) || (mCollider.x + 60 > (room->x + room->width) * 64) || touchesWall(mCollider, room, 32))
 	{
-		mCollider.x -= nVelX;
+		mCollider.x -= nVelX * cos(-room->rotation) - nVelY * sin(-room->rotation);
 	}
 
-	mCollider.y += nVelY;
-	if ((mCollider.y < 00) || (mCollider.y + 60 > LEVEL_HEIGHT) || touchesWall(mCollider, tiles))
+	mCollider.y += nVelY;// *sin(-room->rotation) + nVelY * cos(-room->rotation);
+	if ((mCollider.y < room->y * 64) || (mCollider.y + 60 > (room->y + room->height) * 64) || touchesWall(mCollider, room, 32))
 	{
-		mCollider.y -= nVelY;
+		mCollider.y -= nVelX * sin(-room->rotation) + nVelY * cos(-room->rotation);
 	}
 
 	int loops = 18;
@@ -211,20 +221,22 @@ void BaseNpc::targetedMove(Player& player, Tile* tiles[], ProjectileManager& p, 
 	
 	
 
-	if (getAlive()) die(r, gRenderer);
+	if (getAlive()) die(r, gRenderer, &player);
 }
 
-void BaseNpc::move(Player& player, Tile* tiles[], ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
+bool BaseNpc::move(Player& player, Room* room, ProjectileManager& p, RenderableManager& r, SDL_Renderer* gRenderer)
 {
 	if (!dead)
 	{
-		setMoveDirections(player);
+		setMoveDirections(player, room);
 		shoot(player, p);
-		smoothMove(player, tiles, p, r, gRenderer);
+		smoothMove(player, room, p, r, gRenderer);
+		return true;
 	}
 	else
 	{
-		die(r, gRenderer);
+		die(r, gRenderer, &player);
+		return false;
 	}
 
 }
@@ -234,16 +246,25 @@ bool BaseNpc::getAlive()
 	return dead;
 }
 
-void BaseNpc::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip) //SDL_Rect& camera)
+void BaseNpc::render(SDL_Rect& camera, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, Player* player, Room* room) //SDL_Rect& camera)
 {
 	if (!dead) {
-		if (checkCollision(camera, mCollider))
+		if (checkCollision(camera, mCollider, 0))
 		{
-			gSpriteSheetTexture2.render(mCollider.x - camera.x, mCollider.y - camera.y, &currentSprite[snum], gRenderer, angle, center, flip);
+			double x1, y1;
+			double rotation = room->rotation;
+
+			x1 = (mCollider.x - player->x)*cos(rotation) - (mCollider.y - player->y)*sin(rotation);
+			y1 = (mCollider.x - player->x)*sin(rotation) + (mCollider.y - player->y)*cos(rotation);
+
+			x1 += player->x;
+			y1 += player->y;
+
+			gSpriteSheetTexture2.renderInventory(x1 - camera.x, y1 - camera.y, &currentSprite[snum], gRenderer, angle, center, flip);
 			if (damaged) {
 				
-				healthbox.x = mCollider.x - camera.x;
-				healthbox.y = mCollider.y - camera.y + mCollider.h + 5;
+				healthbox.x = x1 - camera.x;
+				healthbox.y = y1 - camera.y + mCollider.h + 5;
 				healthbox.w = (health / maxHealth) * 50;
 
 				SDL_SetRenderDrawColor(gRenderer, 0xFF, 0x00, 0x00, 0xFF);
@@ -255,9 +276,9 @@ void BaseNpc::render(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, 
 	}
 }
 
-void BaseNpc::RenderBatch(SDL_Rect& camera, SDL_Rect* clip, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip)
+void BaseNpc::RenderBatch(SDL_Rect& camera, SDL_Renderer* gRenderer, double angle, SDL_Point* center, SDL_RendererFlip flip, Player* player, Room* room)
 {
-	render(camera, clip, gRenderer, angle, center, flip);
+	render(camera, gRenderer, angle, center, flip, player, room);
 }
 
 bool loadSlimeMedia(SDL_Renderer* gRenderer)

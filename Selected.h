@@ -36,7 +36,6 @@ class Selected
 	//sounds easy lets implement it.
 
 	const int max = 20;
-	int m_selected = 1;
 	LTexture* m_Available = new LTexture[20];
 	int* tileID = new int[20];
 	int selectorX = 0; 
@@ -44,7 +43,7 @@ class Selected
 	SDL_Rect EditorTileClips[5];
 	//Tile editorTiles[5];
 	bool setTilesGo; 
-	int grid[10][10];
+	int grid[16][12];
 	
 	
 	//to do a selector for map tiles with multiple heights we can do something 
@@ -59,6 +58,9 @@ class Selected
 	*/
 
 public:
+
+	int m_selected = 0;
+
 	void handleEvent(SDL_Event& e, Tile* tileSet[], SDL_Rect& camera)
 	{
 		if (e.type == SDL_MOUSEBUTTONDOWN && e.key.repeat == 0)
@@ -68,8 +70,8 @@ public:
 			case SDL_BUTTON_LEFT:
 				int x, y;
 				SDL_GetMouseState(&x, &y);
-				x = (x+camera.x) / 100;
-				y = (y+camera.y) /100;
+				x = (x+camera.x) / 128;
+				y = (y+camera.y) /128;
 				std::cout << x << std::endl;
 				std::cout << y << std::endl;
 				//this will effectively change the map. but not tileset
@@ -86,14 +88,14 @@ public:
 		{
 			switch (e.key.keysym.sym)
 			{
-			case SDLK_a: camera.x += -23; break;
-			case SDLK_d: camera.x += 23;  break;
-			case SDLK_w: camera.y += -16;  break;
-			case SDLK_s: camera.y +=19; break;
-			case SDLK_o: m_selected += 1; break;
-			case SDLK_p: m_selected += -1; break;
+			case SDLK_a: camera.x += -200; break;
+			case SDLK_d: camera.x += 200;  break;
+			case SDLK_w: camera.y += -100;  break;
+			case SDLK_s: camera.y +=100; break;
+			case SDLK_q: m_selected += -1; break;
+			case SDLK_e: m_selected += 1; break;
 			case SDLK_l: 
-				std::ofstream map("maps/levelone.map");
+				std::ofstream map("maps/startTown.map");
 				for (int i = 0; i < TOTAL_TILES; i++)
 				{
 					map << tileSet[i]->getType() << " ";
@@ -111,11 +113,11 @@ public:
 			tileID[i] = i;
 		}
 
-		m_selected = 1;
+		m_selected = 0;
 		
-		for (int m = 0; m < 10; m++)
+		for (int m = 0; m < 16; m++)
 		{
-			for (int n = 0; n < 10; n++)
+			for (int n = 0; n < 12; n++)
 			{
 				grid[m][n] = 0;
 			}
